@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 const Schema = z.object({
-  POLITO_BASE_URL: z.string().url().default('https://app.didattica.polito.it'),
+  POLITO_BASE_URL: z.string().url().default('https://app.didattica.polito.it/api'),
   PUBLIC_ORIGIN: z.string().url().default('http://localhost:8787'),
   ENC_MASTER_KEY: z
     .string()

@@ -13,7 +13,7 @@
  */
 import { PolitoClient } from '../src/polito/client.js';
 
-const BASE = process.env.POLITO_BASE_URL ?? 'https://app.didattica.polito.it';
+const BASE = process.env.POLITO_BASE_URL ?? 'https://app.didattica.polito.it/api';
 const username = process.env.POLITO_TEST_USERNAME;
 const password = process.env.POLITO_TEST_PASSWORD;
 
