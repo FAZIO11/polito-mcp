@@ -1,0 +1,46 @@
+# syntax=docker/dockerfile:1.7
+
+# --- 0. clone source ---
+FROM mirror.gcr.io/library/alpine:3.21 AS source
+RUN apk add --no-cache git
+RUN --mount=type=secret,id=GITHUB_TOKEN \
+    git clone --depth 1 --branch main \
+    "https://x-access-token:$(cat /run/secrets/GITHUB_TOKEN)@github.com/FAZIO11/polito-mcp.git" /src
+
+# --- 1. install deps (with dev deps for build) ---
+FROM mirror.gcr.io/library/node:20-alpine AS deps
+WORKDIR /app
+RUN apk add --no-cache python3 make g++
+COPY --from=source /src/package.json /src/package-lock.json* ./
+COPY --from=source /src/apps/server/package.json ./apps/server/
+RUN npm ci
+
+# --- 2. build TypeScript ---
+FROM deps AS build
+WORKDIR /app
+COPY --from=source /src/apps ./apps
+RUN npm run build --workspace apps/server
+
+# --- 3. trim to production deps ---
+FROM mirror.gcr.io/library/node:20-alpine AS prod-deps
+WORKDIR /app
+RUN apk add --no-cache python3 make g++
+COPY --from=source /src/package.json /src/package-lock.json* ./
+COPY --from=source /src/apps/server/package.json ./apps/server/
+RUN npm ci --omit=dev
+
+# --- 4. runtime ---
+FROM mirror.gcr.io/library/node:20-alpine AS runtime
+WORKDIR /app
+ENV NODE_ENV=production
+RUN apk add --no-cache tini ca-certificates \
+ && adduser -D -H -s /sbin/nologin app
+COPY --from=prod-deps /app/node_modules ./node_modules
+COPY --from=build /app/apps/server/dist ./apps/server/dist
+COPY --from=source /src/apps/server/package.json ./apps/server/package.json
+COPY --from=source /src/package.json ./package.json
+RUN mkdir -p /data && chown app:app /data
+USER app
+EXPOSE 8080
+ENTRYPOINT ["/sbin/tini","--"]
+CMD ["node","apps/server/dist/index.js"]
