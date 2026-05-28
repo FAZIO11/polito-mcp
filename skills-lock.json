@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "mcp-apps-builder": {
+      "source": "mcp-use/mcp-use",
+      "sourceType": "github",
+      "skillPath": "skills/mcp-apps-builder/SKILL.md",
+      "computedHash": "935809ff8d3a12d0ce7a0bc1353f63d10391260b56c600db0aa6e081ef618e67"
+    }
+  }
+}

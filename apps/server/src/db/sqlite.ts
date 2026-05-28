@@ -71,6 +71,18 @@ function migrate(d: Database.Database): void {
 
     CREATE INDEX IF NOT EXISTS idx_oauth_codes_expiry ON oauth_codes(expires_at);
 
+    -- Session-based auth: maps an MCP session ID to a user after /connect login.
+    -- Pending sessions (user_id IS NULL) expire in 15 min; linked ones last 30 days.
+    CREATE TABLE IF NOT EXISTS mcp_sessions (
+      session_id TEXT PRIMARY KEY,
+      user_id TEXT REFERENCES users(user_id) ON DELETE CASCADE,
+      created_at INTEGER NOT NULL,
+      expires_at INTEGER NOT NULL
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_mcp_sessions_user ON mcp_sessions(user_id);
+    CREATE INDEX IF NOT EXISTS idx_mcp_sessions_expiry ON mcp_sessions(expires_at);
+
     INSERT OR IGNORE INTO schema_meta (key, value) VALUES ('version', '1');
   `);
 }

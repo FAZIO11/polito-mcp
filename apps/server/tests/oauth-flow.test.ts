@@ -203,10 +203,13 @@ describe('full OAuth + MCP integration', () => {
     expect(body.error).toBe('invalid_grant');
   });
 
-  it('rejects /mcp without a Bearer token', async () => {
+  it('responds to /mcp without a Bearer token (session-based onboarding flow)', async () => {
+    // Unauthenticated connections are now allowed; the MCP transport rejects
+    // malformed requests (not Bearer-gated at the HTTP layer anymore).
     const res = await app.request('/mcp', { method: 'POST' });
-    expect(res.status).toBe(401);
-    expect(res.headers.get('www-authenticate')).toMatch(/Bearer/);
+    expect(res.status).not.toBe(401);
+    // Session ID is always echoed back so the client can store it.
+    expect(res.headers.get('mcp-session-id')).toBeTruthy();
   });
 
   it('shows the login page error and refuses bad credentials', async () => {

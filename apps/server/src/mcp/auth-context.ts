@@ -25,9 +25,10 @@ export interface HasAuthInfo {
 
 export function getPolitoAuthExtra(extra: HasAuthInfo): PolitoAuthExtra {
   const authInfo = extra.authInfo;
-  const e = authInfo?.extra as Partial<PolitoAuthExtra> | undefined;
+  const e = authInfo?.extra as Partial<PolitoAuthExtra & { sessionId?: string }> | undefined;
+  const sessionId = e?.sessionId ?? null;
   if (!authInfo || !e?.userId || !e?.username) {
-    throw new ToolAuthError('not_authenticated');
+    throw new ToolAuthError('not_authenticated', sessionId);
   }
   return {
     userId: e.userId,
@@ -71,9 +72,15 @@ export async function withPoliTo<T>(
 
 export class ToolAuthError extends Error {
   readonly code: 'not_authenticated' | 'no_active_token' | 're_auth_required';
-  constructor(code: 'not_authenticated' | 'no_active_token' | 're_auth_required') {
+  /** Present when code === 'not_authenticated' so handleError can build the login URL. */
+  readonly sessionId: string | null;
+  constructor(
+    code: 'not_authenticated' | 'no_active_token' | 're_auth_required',
+    sessionId: string | null = null,
+  ) {
     super(code);
     this.name = 'ToolAuthError';
     this.code = code;
+    this.sessionId = sessionId;
   }
 }

@@ -1,6 +1,7 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { logger } from '../logger.js';
+import { loadConfig } from '../config.js';
 import { PolitoApiError } from '../polito/client.js';
 import { deleteUserCompletely } from '../db/users.js';
 import {
@@ -31,13 +32,24 @@ function makeError(message: string, kind?: string) {
 
 function handleError(err: unknown, toolName: string) {
   if (err instanceof ToolAuthError) {
+    if (err.code === 'not_authenticated') {
+      if (err.sessionId) {
+        const loginUrl = `${loadConfig().PUBLIC_ORIGIN}/connect?s=${err.sessionId}`;
+        return {
+          content: [{
+            type: 'text' as const,
+            text: `To use polito-mcp you need to connect your PoliTO account first.\n\nOpen this link in your browser, sign in with your PoliTO credentials, then come back here and ask again:\n\n${loginUrl}`,
+          }],
+        };
+      }
+      return makeError('Not authenticated. Please connect your PoliTO account.', 'not_authenticated');
+    }
     if (err.code === 're_auth_required' || err.code === 'no_active_token') {
       return makeError(
         'Your PoliTO session has expired. Please re-authorize the polito-mcp connection in your MCP client.',
         're_auth_required',
       );
     }
-    return makeError('Not authenticated. Please connect via OAuth first.', 'not_authenticated');
   }
   if (err instanceof PolitoApiError) {
     logger.warn({ status: err.status, path: err.path }, `tool ${toolName} upstream error`);

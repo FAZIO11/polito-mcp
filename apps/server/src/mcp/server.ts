@@ -1,91 +1,76 @@
+import { randomUUID } from 'node:crypto';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js';
 import type { AuthInfo } from '@modelcontextprotocol/sdk/server/auth/types.js';
 import { Hono } from 'hono';
 import { verifyAccessToken, ACCESS_TOKEN_TTL_SECONDS } from '../auth/jwt.js';
-import { findUserById, getDecryptedToken } from '../db/users.js';
+import { findUserById } from '../db/users.js';
+import { createPendingSession, linkSessionToUser, lookupSessionUserId } from '../db/sessions.js';
 import { logger } from '../logger.js';
 import type { AppEnv } from '../http/context.js';
 import { registerTools } from './tools.js';
 
-/**
- * Builds the MCP server instance and mounts it on `/mcp` of the returned Hono
- * sub-app. The transport runs in stateless mode (one MCP server per request),
- * which is the simplest pattern for a fully hosted server with stateless JWT
- * auth. If we later want streaming/notifications between requests we can
- * switch on session ids.
- */
 export function createMcpHttpApp(): Hono<AppEnv> {
   const app = new Hono<AppEnv>();
 
   app.all('/mcp', async (c) => {
-    // ---- Authenticate ----
+    // ---- Resolve session ID ----
+    // On the first request the client has no session ID; we generate one,
+    // store it as a pending session, and echo it back in the response header.
+    // The MCP client will include it on every subsequent request so we can
+    // correlate tool calls with the logged-in user.
+    let sessionId = c.req.header('mcp-session-id') ?? null;
+    if (!sessionId) {
+      sessionId = randomUUID();
+      createPendingSession(sessionId);
+    }
+
+    // ---- Resolve userId (JWT first for backward compat, session fallback) ----
+    let userId: string | null = null;
+    let clientId = 'session';
+    let username = '';
+    let tokenScopes: string[] = [];
+
     const authHeader = c.req.header('authorization') ?? '';
-    const bearer = authHeader.toLowerCase().startsWith('bearer ')
-      ? authHeader.slice(7).trim()
-      : '';
-    if (!bearer) {
-      return new Response(
-        JSON.stringify({ error: 'unauthorized', error_description: 'Missing bearer token.' }),
-        {
-          status: 401,
-          headers: {
-            'Content-Type': 'application/json',
-            'WWW-Authenticate': `Bearer realm="polito-mcp", resource="${c.req.url}"`,
-          },
-        },
-      );
-    }
-    let claims;
-    try {
-      claims = await verifyAccessToken(bearer);
-    } catch (err) {
-      logger.info({ err }, 'JWT verification failed');
-      return new Response(
-        JSON.stringify({ error: 'invalid_token' }),
-        {
-          status: 401,
-          headers: {
-            'Content-Type': 'application/json',
-            'WWW-Authenticate': 'Bearer error="invalid_token"',
-          },
-        },
-      );
+    const bearer = authHeader.toLowerCase().startsWith('bearer ') ? authHeader.slice(7).trim() : '';
+
+    if (bearer) {
+      try {
+        const claims = await verifyAccessToken(bearer);
+        const user = findUserById(claims.sub);
+        if (user) {
+          userId = claims.sub;
+          clientId = claims.client_id;
+          username = user.polito_username;
+          tokenScopes = claims.scope.split(/\s+/).filter(Boolean);
+          // Keep session in sync so that even if JWT expires, session auth works.
+          linkSessionToUser(sessionId, userId);
+        }
+      } catch (err) {
+        logger.info({ err }, 'JWT verification failed; falling back to session auth');
+      }
     }
 
-    const user = findUserById(claims.sub);
-    if (!user) {
-      return new Response(
-        JSON.stringify({ error: 'invalid_token', error_description: 'User deleted.' }),
-        { status: 401, headers: { 'Content-Type': 'application/json' } },
-      );
-    }
-    const stored = getDecryptedToken(claims.sub);
-    if (!stored) {
-      return new Response(
-        JSON.stringify({
-          error: 'invalid_token',
-          error_description: 'Upstream PoliTO session expired; please re-authorize.',
-        }),
-        {
-          status: 401,
-          headers: {
-            'Content-Type': 'application/json',
-            'WWW-Authenticate': 'Bearer error="invalid_token"',
-          },
-        },
-      );
+    if (!userId) {
+      userId = lookupSessionUserId(sessionId);
+      if (userId) {
+        const user = findUserById(userId);
+        username = user?.polito_username ?? '';
+        tokenScopes = ['student'];
+      }
     }
 
+    // ---- Build authInfo — userId may be null for unauthenticated sessions ----
     const authInfo: AuthInfo = {
-      token: bearer,
-      clientId: claims.client_id,
-      scopes: claims.scope.split(/\s+/).filter(Boolean),
-      expiresAt: Math.floor(Date.now() / 1000) + ACCESS_TOKEN_TTL_SECONDS,
+      token: bearer || sessionId,
+      clientId,
+      scopes: tokenScopes,
+      ...(bearer ? { expiresAt: Math.floor(Date.now() / 1000) + ACCESS_TOKEN_TTL_SECONDS } : {}),
       extra: {
-        userId: claims.sub,
-        username: claims.username,
-        clientId: claims.client_id,
+        userId,       // null → tool handlers return the /connect login URL
+        sessionId,
+        username,
+        clientId,
       },
     };
 
@@ -106,9 +91,12 @@ export function createMcpHttpApp(): Hono<AppEnv> {
     });
     await server.connect(transport);
     try {
-      return await transport.handleRequest(c.req.raw, { authInfo });
+      const response = await transport.handleRequest(c.req.raw, { authInfo });
+      // Always echo session ID so the client can store it from the first response.
+      const headers = new Headers(response.headers);
+      headers.set('mcp-session-id', sessionId);
+      return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
     } finally {
-      // Best-effort cleanup; ignore close errors.
       transport.close().catch(() => {});
     }
   });

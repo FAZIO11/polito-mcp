@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { createAuthServer } from './auth/server.js';
 import { createMcpHttpApp } from './mcp/server.js';
 import { createAccountApp } from './http/account.js';
+import { createConnectApp } from './http/connect.js';
 import { loadConfig } from './config.js';
 import { logger } from './logger.js';
 import type { AppEnv } from './http/context.js';
@@ -42,6 +43,7 @@ export function createApp(): Hono<AppEnv> {
 
   app.route('/', createAuthServer());
   app.route('/', createAccountApp());
+  app.route('/', createConnectApp());
   app.route('/', createMcpHttpApp());
 
   return app;
