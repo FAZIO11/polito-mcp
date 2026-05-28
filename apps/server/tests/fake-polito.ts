@@ -136,7 +136,7 @@ export async function startFakePolito(): Promise<FakePolito> {
   auth.get('/exams', (c) => c.json({ data: [] }));
   auth.get('/bookings', (c) => c.json({ data: [] }));
   auth.get('/unreadEmails', (c) => c.json({ data: { unreadEmails: '0' } }));
-  auth.get('/me/lectures', (c) => c.json({ data: [] }));
+  auth.get('/lectures', (c) => c.json({ data: [] }));
 
   app.route('/', auth);
 

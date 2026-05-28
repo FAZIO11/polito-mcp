@@ -260,7 +260,7 @@ export class PolitoClient {
   // ---- Lectures (derived from /me/lectures) ----
 
   async getMyLectures(fromDate?: string, toDate?: string): Promise<Lecture[]> {
-    const env = await this.request<DataEnvelope<Lecture[]>>('/me/lectures', {
+    const env = await this.request<DataEnvelope<Lecture[]>>('/lectures', {
       query: { fromDate, toDate },
     });
     return env.data;
