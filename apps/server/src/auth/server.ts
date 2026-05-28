@@ -306,7 +306,10 @@ export function createAuthServer(strategy: AuthStrategy = new PasswordStrategy()
 }
 
 function renderCallbackPage(callbackUrl: string): string {
-  const safe = callbackUrl.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+  // HTML attr context: escape & and "
+  const htmlSafe = callbackUrl.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+  // JS string context: HTML entities are NOT decoded — escape only JS-special chars
+  const jsSafe = callbackUrl.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/</g, '\\u003c');
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -321,12 +324,12 @@ function renderCallbackPage(callbackUrl: string): string {
   a.btn:hover { background: #0950a0; }
   p { color: #555; }
 </style>
-<script>window.location.href = "${safe}";</script>
+<script>window.location.href = "${jsSafe}";</script>
 </head>
 <body>
 <h1>Authorization complete</h1>
 <p>Click the button below if your app did not open automatically.</p>
-<a class="btn" href="${safe}">Open in app</a>
+<a class="btn" href="${htmlSafe}">Open in app</a>
 </body>
 </html>`;
 }
