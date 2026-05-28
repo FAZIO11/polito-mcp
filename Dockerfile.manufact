@@ -13,7 +13,7 @@ WORKDIR /app
 RUN apk add --no-cache python3 make g++
 COPY --from=source /src/package.json /src/package-lock.json* ./
 COPY --from=source /src/apps/server/package.json ./apps/server/
-RUN npm ci
+RUN npm ci --include=dev
 
 # --- 2. build TypeScript ---
 FROM deps AS build
