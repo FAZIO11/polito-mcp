@@ -5,7 +5,7 @@ import type { AuthInfo } from '@modelcontextprotocol/sdk/server/auth/types.js';
 import { Hono } from 'hono';
 import { verifyAccessToken, ACCESS_TOKEN_TTL_SECONDS } from '../auth/jwt.js';
 import { findUserById } from '../db/users.js';
-import { createPendingSession, linkSessionToUser, lookupSessionUserId } from '../db/sessions.js';
+import { createPendingSession, linkSessionToUser, lookupSessionUserId, lookupIpUserId } from '../db/sessions.js';
 import { logger } from '../logger.js';
 import type { AppEnv } from '../http/context.js';
 import { registerTools } from './tools.js';
@@ -22,6 +22,7 @@ const mcpSessions = new Map<string, SessionEntry>();
 async function resolveAuth(
   authHeader: string,
   sessionId: string | null,
+  clientIp: string | null = null,
 ): Promise<AuthInfo> {
   let userId: string | null = null;
   let clientId = 'session';
@@ -58,6 +59,20 @@ async function resolveAuth(
     }
   }
 
+  // Last resort: IP-based auth. After a successful /connect login the user's
+  // IP is stored for 30 days so new sessions from the same device are
+  // auto-authenticated even when the client reconnects with a fresh session ID.
+  if (!userId && clientIp) {
+    userId = lookupIpUserId(clientIp);
+    if (userId) {
+      const user = findUserById(userId);
+      username = user?.polito_username ?? '';
+      tokenScopes = ['student'];
+      // Bind this new session to the user so session-based auth also works.
+      if (sessionId) linkSessionToUser(sessionId, userId);
+    }
+  }
+
   return {
     token: bearer || sessionId || 'anon',
     clientId,
@@ -74,6 +89,11 @@ export function createMcpHttpApp(): Hono<AppEnv> {
     const incomingSessionId = c.req.header('mcp-session-id') ?? null;
     const authHeader = c.req.header('authorization') ?? '';
 
+    const clientIp =
+      c.req.header('x-forwarded-for')?.split(',')[0]?.trim() ??
+      c.req.header('x-real-ip') ??
+      null;
+
     // ---- Route to existing session ----
     if (incomingSessionId) {
       const entry = mcpSessions.get(incomingSessionId);
@@ -85,7 +105,7 @@ export function createMcpHttpApp(): Hono<AppEnv> {
           { status: 404, headers: { 'Content-Type': 'application/json' } },
         );
       }
-      const authInfo = await resolveAuth(authHeader, incomingSessionId);
+      const authInfo = await resolveAuth(authHeader, incomingSessionId, clientIp);
       return entry.transport.handleRequest(c.req.raw, { authInfo });
     }
 
@@ -95,7 +115,7 @@ export function createMcpHttpApp(): Hono<AppEnv> {
     const newSessionId = randomUUID();
     createPendingSession(newSessionId);
 
-    const authInfo = await resolveAuth(authHeader, newSessionId);
+    const authInfo = await resolveAuth(authHeader, newSessionId, clientIp);
 
     const mcpServer = new McpServer(
       { name: 'polito-mcp', version: '0.1.0' },

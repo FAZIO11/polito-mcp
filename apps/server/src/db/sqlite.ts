@@ -83,6 +83,15 @@ function migrate(d: Database.Database): void {
     CREATE INDEX IF NOT EXISTS idx_mcp_sessions_user ON mcp_sessions(user_id);
     CREATE INDEX IF NOT EXISTS idx_mcp_sessions_expiry ON mcp_sessions(expires_at);
 
+    -- Maps a client IP to a userId after a successful /connect login.
+    -- Lets new MCP sessions from the same IP be auto-authenticated without
+    -- requiring session ID persistence across client reconnects.
+    CREATE TABLE IF NOT EXISTS ip_sessions (
+      ip TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+      expires_at INTEGER NOT NULL
+    );
+
     INSERT OR IGNORE INTO schema_meta (key, value) VALUES ('version', '1');
   `);
 }

@@ -3,7 +3,7 @@ import { loadConfig } from '../config.js';
 import { PolitoClient, PolitoApiError } from '../polito/client.js';
 import { normalizePolitoLoginUsername } from '../auth/login-username.js';
 import { upsertUserAndToken } from '../db/users.js';
-import { isValidSession, linkSessionToUser } from '../db/sessions.js';
+import { isValidSession, linkSessionToUser, upsertIpSession } from '../db/sessions.js';
 import { renderLoginPage } from './login-page.js';
 import { rateLimit, recordMatricolaAttempt } from './rate-limit.js';
 import { logger } from '../logger.js';
@@ -140,7 +140,16 @@ export function createConnectApp(): Hono<AppEnv> {
       });
 
       linkSessionToUser(s, user.user_id);
-      logger.info({ userId: user.user_id }, 'connect: session linked');
+
+      // Store IP → userId so any new MCP session from this device is
+      // auto-authenticated even after the client reconnects with a new session ID.
+      const clientIp =
+        c.req.header('x-forwarded-for')?.split(',')[0]?.trim() ??
+        c.req.header('x-real-ip') ??
+        'unknown';
+      if (clientIp !== 'unknown') upsertIpSession(clientIp, user.user_id);
+
+      logger.info({ userId: user.user_id, ip: clientIp }, 'connect: session linked');
 
       return c.html(renderSuccess(identity.username));
     } catch (err) {
