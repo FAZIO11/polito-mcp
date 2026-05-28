@@ -59,6 +59,25 @@ export function createAuthServer(strategy: AuthStrategy = new PasswordStrategy()
   const app = new Hono<AppEnv>();
 
   // ---- Discovery ----
+
+  // RFC 9728 — tells clients which AS protects this resource.
+  app.get('/.well-known/oauth-protected-resource', (c) => {
+    const origin = loadConfig().PUBLIC_ORIGIN;
+    return c.json({
+      resource: `${origin}/mcp`,
+      authorization_servers: [origin],
+    });
+  });
+
+  // Also handle the /mcp-suffixed variant some clients request.
+  app.get('/.well-known/oauth-protected-resource/mcp', (c) => {
+    const origin = loadConfig().PUBLIC_ORIGIN;
+    return c.json({
+      resource: `${origin}/mcp`,
+      authorization_servers: [origin],
+    });
+  });
+
   app.get('/.well-known/oauth-authorization-server', (c) => {
     const origin = loadConfig().PUBLIC_ORIGIN;
     return c.json({
