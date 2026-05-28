@@ -4,6 +4,8 @@ import { loadConfig } from '../config.js';
 import { logger } from '../logger.js';
 import { PolitoApiError, PolitoClient } from '../polito/client.js';
 import { upsertUserAndToken } from '../db/users.js';
+import { BadCredentialsError } from './errors.js';
+import { normalizePolitoLoginUsername } from './login-username.js';
 import type { AuthStrategy, UpstreamAuthResult } from './strategy.js';
 
 /**
@@ -31,17 +33,15 @@ export class PasswordStrategy implements AuthStrategy {
     };
 
     if (!username || !pwHolder.value) {
-      throw new BadCredentialsError('Matricola and password are required.');
+      throw new BadCredentialsError('Email or matricola and password are required.');
     }
-    if (!/^[A-Za-z0-9]{3,16}$/.test(username)) {
-      throw new BadCredentialsError('Invalid matricola format.');
-    }
+    const politoUsername = normalizePolitoLoginUsername(username);
 
     const cfg = loadConfig();
     const client = new PolitoClient(cfg.POLITO_BASE_URL, null);
     try {
       const identity = await client.loginBasic({
-        username,
+        username: politoUsername,
         password: pwHolder.value,
       });
 
@@ -67,7 +67,7 @@ export class PasswordStrategy implements AuthStrategy {
         );
         if (err.status === 401 || err.status === 400 || err.status === 403) {
           throw new BadCredentialsError(
-            'PoliTO refused those credentials. Check your matricola and password.',
+            'PoliTO refused those credentials. Check your student email and password.',
           );
         }
         throw new BadCredentialsError(
@@ -83,10 +83,4 @@ export class PasswordStrategy implements AuthStrategy {
   }
 }
 
-/** User-facing error that renders back into the login page. */
-export class BadCredentialsError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'BadCredentialsError';
-  }
-}
+export { BadCredentialsError } from './errors.js';

@@ -51,6 +51,12 @@ export function renderLoginPage(args: {
   }
   h1 { font-size: 1.5rem; margin-bottom: 0.25rem; }
   .subtitle { color: #666; margin-top: 0; }
+  .hint {
+    margin: 0.35rem 0 0;
+    font-size: 0.9rem;
+    color: #666;
+  }
+  .hint code { font-size: 0.85em; }
   .unofficial {
     border: 2px solid #c00;
     background: #fff5f5;
@@ -111,7 +117,7 @@ export function renderLoginPage(args: {
 
 <div class="unofficial">
   <strong>This is not Politecnico di Torino.</strong> If you continue, your
-  matricola and password will be sent over TLS to <code>${escape(args.publicOrigin)}</code>,
+  student email (or matricola) and password will be sent over TLS to <code>${escape(args.publicOrigin)}</code>,
   immediately forwarded to PoliTO's official <code>/auth/login</code>
   endpoint, and the password will be discarded from memory. Only the API
   token returned by PoliTO will be kept (encrypted) so future MCP requests
@@ -126,11 +132,12 @@ ${error}
 
 <form method="POST" action="${escape(args.actionUrl)}" autocomplete="off">
   ${hiddenInputs}
-  <label for="username">Matricola</label>
-  <input id="username" name="username" type="text" inputmode="text"
+  <label for="username">PoliTO student email</label>
+  <input id="username" name="username" type="email" inputmode="email"
          autocapitalize="none" spellcheck="false"
-         required pattern="[A-Za-z0-9]+" value="${prefill}"
+         required placeholder="s334745@studenti.polito.it" value="${prefill}"
          autocomplete="username">
+  <p class="hint">You can also enter your matricola only (e.g. <code>s334745</code>).</p>
 
   <label for="password">PoliTO password</label>
   <input id="password" name="password" type="password" required
