@@ -3,6 +3,7 @@ import { createAuthServer } from './auth/server.js';
 import { createMcpHttpApp } from './mcp/server.js';
 import { createAccountApp } from './http/account.js';
 import { loadConfig } from './config.js';
+import { logger } from './logger.js';
 import type { AppEnv } from './http/context.js';
 
 /**
@@ -12,10 +13,15 @@ import type { AppEnv } from './http/context.js';
 export function createApp(): Hono<AppEnv> {
   const app = new Hono<AppEnv>();
 
-  // Force HSTS in production; safe to send always (TLS-terminating proxy
-  // will simply ignore it on plain HTTP requests).
+  // Request logger + security headers.
   app.use('*', async (c, next) => {
+    const start = Date.now();
     await next();
+    const ms = Date.now() - start;
+    logger.info(
+      { method: c.req.method, path: new URL(c.req.url).pathname, status: c.res.status, ms },
+      'request',
+    );
     if (loadConfig().NODE_ENV === 'production') {
       c.header('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
     }

@@ -184,6 +184,7 @@ export function createAuthServer(strategy: AuthStrategy = new PasswordStrategy()
       const url = new URL(parsed.data.redirect_uri);
       url.searchParams.set('code', issued.code);
       if (parsed.data.state) url.searchParams.set('state', parsed.data.state);
+      logger.info({ redirect_uri: parsed.data.redirect_uri }, 'auth code issued, redirecting');
       return c.redirect(url.toString(), 302);
     } catch (err) {
       if (err instanceof BadCredentialsError) {
