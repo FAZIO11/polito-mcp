@@ -1,0 +1,53 @@
+# Fly.io configuration for polito-mcp.
+#
+# Before first deploy:
+#   fly launch --no-deploy --name polito-mcp --region fra
+#   fly volumes create polito_mcp_data --region fra --size 1
+#   fly secrets set \
+#     ENC_MASTER_KEY="$(openssl rand -hex 32)" \
+#     JWT_SECRET="$(openssl rand -hex 32)" \
+#     POLITO_BASE_URL="https://app.didattica.polito.it" \
+#     PUBLIC_ORIGIN="https://polito-mcp.example"
+#   fly deploy
+
+app = "polito-mcp"
+primary_region = "fra"
+kill_signal = "SIGINT"
+kill_timeout = 10
+
+[build]
+  dockerfile = "../Dockerfile"
+
+[env]
+  NODE_ENV = "production"
+  PORT = "8080"
+  LOG_LEVEL = "info"
+  DB_PATH = "/data/polito-mcp.sqlite"
+
+[[mounts]]
+  source = "polito_mcp_data"
+  destination = "/data"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [http_service.concurrency]
+    type = "requests"
+    soft_limit = 100
+    hard_limit = 200
+
+  [[http_service.checks]]
+    grace_period = "10s"
+    interval = "30s"
+    method = "GET"
+    timeout = "5s"
+    path = "/healthz"
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory_mb = 256

@@ -1,0 +1,23 @@
+GNU AFFERO GENERAL PUBLIC LICENSE
+Version 3, 19 November 2007
+
+Copyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>
+Everyone is permitted to copy and distribute verbatim copies of this license
+document, but changing it is not allowed.
+
+This project is distributed under the terms of the GNU Affero General Public
+License, version 3 or (at your option) any later version. The full text of the
+license can be found at https://www.gnu.org/licenses/agpl-3.0.txt and is
+incorporated by reference into this file.
+
+In short:
+
+- You may copy, modify and redistribute this software.
+- If you run a modified version on a server and users interact with it over a
+  network, you must offer them the corresponding source code under the same
+  license (AGPL-3.0 §13).
+- There is no warranty.
+
+The intent of choosing AGPL-3.0 for this project is to make sure every hosted
+instance of polito-mcp remains auditable by the students whose credentials it
+handles.

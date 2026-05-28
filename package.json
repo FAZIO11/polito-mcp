@@ -1,0 +1,21 @@
+{
+  "name": "polito-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Unofficial remote MCP server for the Politecnico di Torino student API.",
+  "license": "AGPL-3.0-or-later",
+  "workspaces": [
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "dev": "npm run dev --workspace apps/server",
+    "start": "npm run start --workspace apps/server",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  }
+}
