@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.7
 
 # --- 1. install deps (with dev deps for build) ---
-FROM node:20-alpine AS deps
+FROM mirror.gcr.io/library/node:20-alpine AS deps
 WORKDIR /app
 RUN apk add --no-cache python3 make g++
 COPY package.json package-lock.json* ./
@@ -15,7 +15,7 @@ COPY apps ./apps
 RUN npm run build --workspace apps/server
 
 # --- 3. trim to production deps ---
-FROM node:20-alpine AS prod-deps
+FROM mirror.gcr.io/library/node:20-alpine AS prod-deps
 WORKDIR /app
 RUN apk add --no-cache python3 make g++
 COPY package.json package-lock.json* ./
@@ -23,7 +23,7 @@ COPY apps/server/package.json ./apps/server/
 RUN npm ci --omit=dev
 
 # --- 4. runtime ---
-FROM node:20-alpine AS runtime
+FROM mirror.gcr.io/library/node:20-alpine AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
 RUN apk add --no-cache tini ca-certificates \
