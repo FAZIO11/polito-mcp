@@ -185,6 +185,13 @@ export function createAuthServer(strategy: AuthStrategy = new PasswordStrategy()
       url.searchParams.set('code', issued.code);
       if (parsed.data.state) url.searchParams.set('state', parsed.data.state);
       logger.info({ redirect_uri: parsed.data.redirect_uri }, 'auth code issued, redirecting');
+
+      // For non-http(s) schemes (e.g. cursor://) Safari ignores 302 redirects.
+      // Render a click-through page so the user gesture opens the app.
+      const scheme = url.protocol;
+      if (scheme !== 'https:' && scheme !== 'http:') {
+        return c.html(renderCallbackPage(url.toString()));
+      }
       return c.redirect(url.toString(), 302);
     } catch (err) {
       if (err instanceof BadCredentialsError) {
@@ -296,5 +303,31 @@ export function createAuthServer(strategy: AuthStrategy = new PasswordStrategy()
     }
     return { ok: true };
   }
+}
+
+function renderCallbackPage(callbackUrl: string): string {
+  const safe = callbackUrl.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Opening your app…</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+         max-width: 32rem; margin: 4rem auto; padding: 0 1.25rem; text-align: center; }
+  a.btn { display: inline-block; margin-top: 1.5rem; padding: 0.75rem 1.5rem;
+          background: #0a66c2; color: #fff; border-radius: 8px; text-decoration: none;
+          font-weight: 600; font-size: 1rem; }
+  a.btn:hover { background: #0950a0; }
+  p { color: #555; }
+</style>
+<script>window.location.href = "${safe}";</script>
+</head>
+<body>
+<h1>Authorization complete</h1>
+<p>Click the button below if your app did not open automatically.</p>
+<a class="btn" href="${safe}">Open in app</a>
+</body>
+</html>`;
 }
 
