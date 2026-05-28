@@ -140,6 +140,10 @@ describe('full OAuth + MCP integration', () => {
     const initBody = (await listRes.json()) as { result?: { capabilities?: unknown } };
     expect(initBody.result?.capabilities).toBeDefined();
 
+    // Stateful sessions: pass the session ID on every subsequent request.
+    const sessionId = listRes.headers.get('mcp-session-id') ?? '';
+    expect(sessionId).toBeTruthy();
+
     // 6. tools/call → get_profile.
     const callRes = await app.request('/mcp', {
       method: 'POST',
@@ -147,6 +151,7 @@ describe('full OAuth + MCP integration', () => {
         'content-type': 'application/json',
         accept: 'application/json, text/event-stream',
         authorization: `Bearer ${tok.access_token}`,
+        'mcp-session-id': sessionId,
       },
       body: JSON.stringify({
         jsonrpc: '2.0',
@@ -204,11 +209,19 @@ describe('full OAuth + MCP integration', () => {
   });
 
   it('responds to /mcp without a Bearer token (session-based onboarding flow)', async () => {
-    // Unauthenticated connections are now allowed; the MCP transport rejects
-    // malformed requests (not Bearer-gated at the HTTP layer anymore).
-    const res = await app.request('/mcp', { method: 'POST' });
+    // Unauthenticated connections are allowed; the server creates a session and
+    // returns an mcp-session-id so the client can send the /connect login URL.
+    const res = await app.request('/mcp', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', accept: 'application/json, text/event-stream' },
+      body: JSON.stringify({
+        jsonrpc: '2.0',
+        id: 1,
+        method: 'initialize',
+        params: { protocolVersion: '2025-03-26', capabilities: {}, clientInfo: { name: 'test', version: '0.0.0' } },
+      }),
+    });
     expect(res.status).not.toBe(401);
-    // Session ID is always echoed back so the client can store it.
     expect(res.headers.get('mcp-session-id')).toBeTruthy();
   });
 
