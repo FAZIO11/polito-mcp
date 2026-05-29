@@ -12,13 +12,15 @@ import {
 } from './auth-context.js';
 
 /**
- * Helper that wraps a tool callback with consistent error handling and JSON
- * response formatting. The MCP convention is to return `isError: true` with
- * a textual content for tool-level errors, while protocol errors propagate.
+ * Generic output schema shared by every tool.  The outer { result } wrapper
+ * lets the SDK validate the shape without us needing a Zod schema per tool.
  */
+const RESULT_SCHEMA = { result: z.unknown() };
+
 function makeJsonResult(value: unknown) {
   return {
     content: [{ type: 'text' as const, text: JSON.stringify(value, null, 2) }],
+    structuredContent: { result: value } as Record<string, unknown>,
   };
 }
 
@@ -31,6 +33,19 @@ function makeError(message: string, kind?: string) {
 }
 
 function handleError(err: unknown, toolName: string) {
+  // Network-level failure (Node fetch throws TypeError when the host is
+  // unreachable or the connection is reset before an HTTP response arrives).
+  if (
+    err instanceof TypeError &&
+    (err.message.toLowerCase().includes('fetch') ||
+      err.message.toLowerCase().includes('network') ||
+      err.message.toLowerCase().includes('connect'))
+  ) {
+    return makeError(
+      'Network error: could not reach the PoliTO API. Check your connection and try again.',
+      'network_error',
+    );
+  }
   if (err instanceof ToolAuthError) {
     if (err.code === 'not_authenticated') {
       if (err.sessionId) {
@@ -73,6 +88,8 @@ export function registerTools(server: McpServer): void {
       description:
         'Returns the authenticated student profile: name, degree, current career, credits, averages, and on-time-exam points.',
       inputSchema: {},
+      outputSchema: RESULT_SCHEMA,
+      annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: true },
     },
     async (_args, extra) => {
       try {
@@ -93,6 +110,8 @@ export function registerTools(server: McpServer): void {
       title: 'List exam grades',
       description: 'Lists all recorded exam grades for the authenticated student.',
       inputSchema: {},
+      outputSchema: RESULT_SCHEMA,
+      annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: true },
     },
     async (_args, extra) => {
       try {
@@ -114,6 +133,8 @@ export function registerTools(server: McpServer): void {
       description:
         'Lists provisional exam grades the student can still accept or reject, plus the available state codes.',
       inputSchema: {},
+      outputSchema: RESULT_SCHEMA,
+      annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: true },
     },
     async (_args, extra) => {
       try {
@@ -134,7 +155,8 @@ export function registerTools(server: McpServer): void {
       inputSchema: {
         id: z.number().int().positive().describe('Provisional grade id (from get_provisional_grades).'),
       },
-      annotations: { destructiveHint: false, idempotentHint: true },
+      outputSchema: RESULT_SCHEMA,
+      annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: true, idempotentHint: true },
     },
     async ({ id }, extra) => {
       try {
@@ -155,7 +177,8 @@ export function registerTools(server: McpServer): void {
       inputSchema: {
         id: z.number().int().positive().describe('Provisional grade id (from get_provisional_grades).'),
       },
-      annotations: { destructiveHint: true, idempotentHint: true },
+      outputSchema: RESULT_SCHEMA,
+      annotations: { readOnlyHint: false, destructiveHint: true, openWorldHint: true, idempotentHint: true },
     },
     async ({ id }, extra) => {
       try {
@@ -177,9 +200,19 @@ export function registerTools(server: McpServer): void {
       description:
         'Lists academic and administrative deadlines. Both bounds are optional and default to 7 days before/after today.',
       inputSchema: {
-        fromDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
-        toDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+        fromDate: z
+          .string()
+          .regex(/^\d{4}-\d{2}-\d{2}$/)
+          .optional()
+          .describe('Start date filter in YYYY-MM-DD format (inclusive). Defaults to 7 days before today.'),
+        toDate: z
+          .string()
+          .regex(/^\d{4}-\d{2}-\d{2}$/)
+          .optional()
+          .describe('End date filter in YYYY-MM-DD format (inclusive). Defaults to 7 days after today.'),
       },
+      outputSchema: RESULT_SCHEMA,
+      annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: true },
     },
     async ({ fromDate, toDate }, extra) => {
       try {
@@ -192,15 +225,17 @@ export function registerTools(server: McpServer): void {
     },
   );
 
-  // ---------- Today’s lectures ----------
+  // ---------- Today's lectures ----------
 
   server.registerTool(
     'list_today_lectures',
     {
-      title: 'List today’s lectures',
+      title: 'List today\'s lectures',
       description:
         'Returns the lectures scheduled for the student today (UTC date), including time, place, and the related course.',
       inputSchema: {},
+      outputSchema: RESULT_SCHEMA,
+      annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: true },
     },
     async (_args, extra) => {
       try {
@@ -222,6 +257,8 @@ export function registerTools(server: McpServer): void {
       title: 'List enrolled courses',
       description: 'Lists all courses the student is currently enrolled in.',
       inputSchema: {},
+      outputSchema: RESULT_SCHEMA,
+      annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: true },
     },
     async (_args, extra) => {
       try {
@@ -242,6 +279,8 @@ export function registerTools(server: McpServer): void {
       inputSchema: {
         id: z.number().int().positive().describe('Course id (from list_courses).'),
       },
+      outputSchema: RESULT_SCHEMA,
+      annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: true },
     },
     async ({ id }, extra) => {
       try {
@@ -262,6 +301,8 @@ export function registerTools(server: McpServer): void {
       title: 'List inbox messages',
       description: 'Lists messages from PoliTO (teachers, secretariat, exams, system events).',
       inputSchema: {},
+      outputSchema: RESULT_SCHEMA,
+      annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: true },
     },
     async (_args, extra) => {
       try {
@@ -282,7 +323,8 @@ export function registerTools(server: McpServer): void {
       inputSchema: {
         id: z.number().int().positive().describe('Message id (from list_messages).'),
       },
-      annotations: { destructiveHint: false, idempotentHint: true },
+      outputSchema: RESULT_SCHEMA,
+      annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: true, idempotentHint: true },
     },
     async ({ id }, extra) => {
       try {
@@ -303,6 +345,8 @@ export function registerTools(server: McpServer): void {
       title: 'List push notifications',
       description: 'Lists in-app/push notifications delivered to the student.',
       inputSchema: {},
+      outputSchema: RESULT_SCHEMA,
+      annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: true },
     },
     async (_args, extra) => {
       try {
@@ -323,6 +367,8 @@ export function registerTools(server: McpServer): void {
       title: 'List exams',
       description: 'Lists exam appellations available to the student.',
       inputSchema: {},
+      outputSchema: RESULT_SCHEMA,
+      annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: true },
     },
     async (_args, extra) => {
       try {
@@ -341,6 +387,8 @@ export function registerTools(server: McpServer): void {
       title: 'List active bookings',
       description: 'Lists bookings the student has made (exams, lectures, library, etc.).',
       inputSchema: {},
+      outputSchema: RESULT_SCHEMA,
+      annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: true },
     },
     async (_args, extra) => {
       try {
@@ -361,6 +409,8 @@ export function registerTools(server: McpServer): void {
       title: 'Get unread emails count',
       description: 'Returns the badge count for the student PoliTO webmail.',
       inputSchema: {},
+      outputSchema: RESULT_SCHEMA,
+      annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: true },
     },
     async (_args, extra) => {
       try {
@@ -384,7 +434,8 @@ export function registerTools(server: McpServer): void {
       inputSchema: {
         confirm: z.literal(true).describe('Set to true to confirm the irreversible deletion.'),
       },
-      annotations: { destructiveHint: true, idempotentHint: false },
+      outputSchema: RESULT_SCHEMA,
+      annotations: { readOnlyHint: false, destructiveHint: true, openWorldHint: true, idempotentHint: false },
     },
     async ({ confirm }, extra) => {
       if (confirm !== true) {

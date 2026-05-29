@@ -1,5 +1,9 @@
 # polito-mcp — CLAUDE.md
 
+## Git commit style
+
+Never add `Co-Authored-By` trailers to commits. Do not mention Claude or Anthropic in commit messages.
+
 Unofficial MCP server that wraps the Politecnico di Torino student API so that
 MCP-aware AI clients (Claude Desktop, Cursor, Windsurf, VS Code Copilot) can
 read a student's profile, grades, lectures, deadlines, messages, exams, and
