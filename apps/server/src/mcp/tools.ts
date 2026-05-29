@@ -842,6 +842,59 @@ export function registerTools(server: McpServer): void {
   // ---------- Campus / places ----------
 
   server.registerTool(
+    'find_free_classrooms',
+    {
+      title: 'Find free classrooms / aule libere',
+      description:
+        'Finds available classrooms at PoliTO at a given time. ' +
+        'Use for any question like: "where are the free classrooms?", "aule libere", ' +
+        '"find a room to study", "free rooms in 2 hours", "where can I study now?", ' +
+        '"quali aule sono libere?", "c\'è un\'aula libera?". ' +
+        'Handles time calculation internally — no need to call other tools first. ' +
+        'Defaults to the main Politecnico campus (Cittadella Politecnica).',
+      inputSchema: {
+        minutesFromNow: z
+          .number()
+          .int()
+          .min(0)
+          .default(0)
+          .describe('Minutes from now to start checking. 0 = right now, 120 = in 2 hours.'),
+        durationMinutes: z
+          .number()
+          .int()
+          .min(15)
+          .default(60)
+          .describe('How long the room needs to be free (minutes). Default 60.'),
+        siteId: z
+          .string()
+          .optional()
+          .describe(
+            'Campus site id. Omit to use the main campus (TO_CIT). Use list_sites to see all campuses.',
+          ),
+      },
+      outputSchema: RESULT_SCHEMA,
+      annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: true },
+    },
+    async ({ minutesFromNow = 0, durationMinutes = 60, siteId }, extra) => {
+      try {
+        const { userId } = getPolitoAuthExtra(extra);
+        const from = new Date(Date.now() + minutesFromNow * 60_000);
+        const to = new Date(from.getTime() + durationMinutes * 60_000);
+        const date = from.toISOString().slice(0, 10);
+        const timeFrom = from.toISOString().slice(11, 16);
+        const timeTo = to.toISOString().slice(11, 16);
+        const targetSiteId = siteId ?? 'TO_CIT';
+        const rooms = await withPoliTo(userId, (c) =>
+          c.getFreeRooms(targetSiteId, date, timeFrom, timeTo),
+        );
+        return makeJsonResult({ siteId: targetSiteId, freeFrom: timeFrom, freeTo: timeTo, date, rooms });
+      } catch (err) {
+        return handleError(err, 'find_free_classrooms');
+      }
+    },
+  );
+
+  server.registerTool(
     'list_sites',
     {
       title: 'List campus sites',
