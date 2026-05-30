@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import { mountInspector } from '@mcp-use/inspector';
 import { createAuthServer } from './auth/server.js';
 import { createMcpHttpApp } from './mcp/server.js';
 import { createAccountApp } from './http/account.js';
@@ -45,6 +46,8 @@ export function createApp(): Hono<AppEnv> {
   app.route('/', createAccountApp());
   app.route('/', createConnectApp());
   app.route('/', createMcpHttpApp());
+
+  mountInspector(app);
 
   return app;
 }

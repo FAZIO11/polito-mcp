@@ -29,6 +29,7 @@ function makeError(message: string, kind?: string) {
   return {
     isError: true,
     content: [{ type: 'text' as const, text }],
+    structuredContent: { result: null } as Record<string, unknown>,
   };
 }
 
