@@ -56,6 +56,7 @@ function handleError(err: unknown, toolName: string) {
             type: 'text' as const,
             text: `To use polito-mcp you need to connect your PoliTO account first.\n\nOpen this link in your browser, sign in with your PoliTO credentials, then come back here and ask again:\n\n${loginUrl}`,
           }],
+          structuredContent: { result: null } as Record<string, unknown>,
         };
       }
       return makeError('Not authenticated. Please connect your PoliTO account.', 'not_authenticated');

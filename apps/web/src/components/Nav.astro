@@ -1,0 +1,72 @@
+---
+import Logo from "./Logo.astro";
+import { navLinks, site } from "../lib/site";
+---
+
+<header class="sticky top-0 z-50 border-b border-line bg-black/85 backdrop-blur-md">
+  <nav class="mx-auto flex h-14 max-w-7xl items-center justify-between px-5 sm:px-8">
+    <Logo />
+
+    <div class="hidden items-center gap-7 md:flex">
+      {
+        navLinks.map((l) => (
+          <a
+            href={l.href}
+            class="font-mono text-[11px] uppercase tracking-[0.16em] text-ash transition-colors hover:text-white"
+          >
+            {l.label}
+          </a>
+        ))
+      }
+    </div>
+
+    <div class="flex items-center gap-3">
+      <a
+        href={site.repo}
+        target="_blank"
+        rel="noopener"
+        class="hidden font-mono text-[11px] uppercase tracking-[0.16em] text-ash transition-colors hover:text-white sm:block"
+      >
+        GitHub ↗
+      </a>
+      <a
+        href="/docs/quickstart/"
+        class="inline-flex h-9 items-center bg-blue px-4 font-mono text-[11px] uppercase tracking-[0.16em] text-white transition-colors hover:bg-blue-bright"
+      >
+        Connect
+      </a>
+
+      <!-- Mobile menu (CSS-only) -->
+      <details class="relative md:hidden">
+        <summary
+          class="grid h-9 w-9 cursor-pointer list-none place-items-center border border-line text-ash transition-colors hover:text-white [&::-webkit-details-marker]:hidden"
+          aria-label="Open menu"
+        >
+          <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+            <path d="M4 7h16M4 12h16M4 17h16" />
+          </svg>
+        </summary>
+        <div class="absolute right-0 mt-2 w-52 border border-line bg-near p-1">
+          {
+            navLinks.map((l) => (
+              <a
+                href={l.href}
+                class="block px-3 py-2.5 font-mono text-[11px] uppercase tracking-[0.16em] text-ash hover:bg-black hover:text-white"
+              >
+                {l.label}
+              </a>
+            ))
+          }
+          <a
+            href={site.repo}
+            target="_blank"
+            rel="noopener"
+            class="block px-3 py-2.5 font-mono text-[11px] uppercase tracking-[0.16em] text-ash hover:bg-black hover:text-white"
+          >
+            GitHub ↗
+          </a>
+        </div>
+      </details>
+    </div>
+  </nav>
+</header>

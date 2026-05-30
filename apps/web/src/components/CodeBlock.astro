@@ -1,0 +1,54 @@
+---
+interface Props {
+  code: string;
+  lang?: string;
+  title?: string;
+  class?: string;
+}
+const { code, lang = "", title, class: className = "" } = Astro.props;
+---
+
+<div class={`group relative border border-line bg-black ${className}`}>
+  {
+    (title || lang) && (
+      <div class="flex items-center justify-between border-b border-line px-4 py-2">
+        <span class="font-mono text-[11px] uppercase tracking-[0.16em] text-ash-dim">{title ?? lang}</span>
+      </div>
+    )
+  }
+  <pre class="overflow-x-auto px-4 py-3.5 font-mono text-[13px] leading-relaxed text-white"><code set:text={code} /></pre>
+  <button
+    type="button"
+    class="copy-btn absolute right-2 top-2 grid h-8 w-8 place-items-center border border-line bg-near text-ash opacity-0 transition-all hover:text-white focus-visible:opacity-100 group-hover:opacity-100"
+    data-code={code}
+    aria-label="Copy to clipboard"
+  >
+    <svg class="copy-icon h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="9" y="9" width="11" height="11" /><path d="M5 15V5a2 2 0 0 1 2-2h10" />
+    </svg>
+    <svg class="check-icon hidden h-4 w-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20 6 9 17l-5-5" />
+    </svg>
+  </button>
+</div>
+
+<script>
+  document.addEventListener("click", async (e) => {
+    const btn = (e.target as HTMLElement).closest<HTMLButtonElement>(".copy-btn");
+    if (!btn) return;
+    const code = btn.dataset.code ?? "";
+    try {
+      await navigator.clipboard.writeText(code);
+      const copy = btn.querySelector(".copy-icon");
+      const check = btn.querySelector(".check-icon");
+      copy?.classList.add("hidden");
+      check?.classList.remove("hidden");
+      setTimeout(() => {
+        copy?.classList.remove("hidden");
+        check?.classList.add("hidden");
+      }, 1600);
+    } catch {
+      /* clipboard unavailable */
+    }
+  });
+</script>

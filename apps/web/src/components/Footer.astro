@@ -1,0 +1,76 @@
+---
+import Logo from "./Logo.astro";
+import { site } from "../lib/site";
+
+const cols = [
+  {
+    title: "Product",
+    links: [
+      { label: "Capabilities", href: "/#features" },
+      { label: "Examples", href: "/#examples" },
+      { label: "Security", href: "/#security" },
+      { label: "Roadmap", href: "/docs/roadmap/" },
+    ],
+  },
+  {
+    title: "Docs",
+    links: [
+      { label: "Quickstart", href: "/docs/quickstart/" },
+      { label: "Tools", href: "/docs/tools/" },
+      { label: "Security", href: "/docs/security/" },
+      { label: "FAQ", href: "/docs/faq/" },
+    ],
+  },
+  {
+    title: "Project",
+    links: [
+      { label: "GitHub ↗", href: site.repo },
+      { label: "Issues ↗", href: `${site.repo}/issues` },
+      { label: "License", href: `${site.repo}/blob/main/LICENSE` },
+    ],
+  },
+];
+---
+
+<footer class="border-t border-line">
+  <div class="mx-auto max-w-7xl px-5 sm:px-8">
+    <div class="grid gap-10 border-b border-line py-14 md:grid-cols-[1.6fr_1fr_1fr_1fr]">
+      <div class="max-w-xs">
+        <Logo />
+        <p class="mt-5 text-sm leading-relaxed text-ash">
+          An open-source bridge between AI clients and the Politecnico di Torino
+          student API. Built by a student, for students.
+        </p>
+      </div>
+      {
+        cols.map((c) => (
+          <div>
+            <h3 class="label">{c.title}</h3>
+            <ul class="mt-4 space-y-2.5">
+              {c.links.map((l) => (
+                <li>
+                  <a
+                    href={l.href}
+                    class="text-sm text-ash transition-colors hover:text-white"
+                  >
+                    {l.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="flex flex-col gap-4 py-6 md:flex-row md:items-center md:justify-between">
+      <p class="max-w-2xl font-mono text-[11px] leading-relaxed text-ash-dim">
+        UNOFFICIAL — not affiliated with, endorsed by, or sponsored by Politecnico
+        di Torino. The name identifies only the upstream API this project consumes.
+      </p>
+      <p class="font-mono text-[11px] text-ash-dim">
+        © {new Date().getFullYear()} {site.authorId} · AGPL-3.0
+      </p>
+    </div>
+  </div>
+</footer>

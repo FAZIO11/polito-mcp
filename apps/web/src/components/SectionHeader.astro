@@ -1,0 +1,35 @@
+---
+interface Props {
+  /** Two-digit section index, e.g. "01". */
+  num: string;
+  /** Mono kicker, e.g. "CAPABILITIES". */
+  label: string;
+  /** Large condensed display title. */
+  title: string;
+  /** Optional supporting line. */
+  lede?: string;
+  id?: string;
+}
+const { num, label, title, lede, id } = Astro.props;
+---
+
+<div id={id} class="scroll-mt-16 border-t border-line">
+  <div class="grid gap-6 py-10 md:grid-cols-[180px_1fr] md:gap-12 md:py-14">
+    <div class="reveal flex items-start gap-3">
+      <span class="font-mono text-xs text-blue">{num}</span>
+      <span class="label pt-px">{label}</span>
+    </div>
+    <div>
+      <h2 class="reveal font-display text-4xl text-white sm:text-5xl lg:text-6xl" data-delay="40">
+        {title}
+      </h2>
+      {
+        lede && (
+          <p class="reveal mt-4 max-w-xl text-base leading-relaxed text-ash" data-delay="80">
+            {lede}
+          </p>
+        )
+      }
+    </div>
+  </div>
+</div>

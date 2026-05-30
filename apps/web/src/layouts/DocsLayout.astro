@@ -1,0 +1,102 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+import Icon from "../components/Icon.astro";
+import { docsNav, docsFlat } from "../lib/docs";
+
+interface Props {
+  /** Markdown files pass their frontmatter under `frontmatter`. */
+  frontmatter?: { title?: string; description?: string };
+  title?: string;
+  description?: string;
+}
+
+const fm = Astro.props.frontmatter ?? {};
+const title = Astro.props.title ?? fm.title ?? "Docs";
+const description = Astro.props.description ?? fm.description;
+
+// normalise current path with a trailing slash for matching
+const here = Astro.url.pathname.replace(/\/?$/, "/");
+const idx = docsFlat.findIndex((d) => d.href === here);
+const prev = idx > 0 ? docsFlat[idx - 1] : null;
+const next = idx >= 0 && idx < docsFlat.length - 1 ? docsFlat[idx + 1] : null;
+---
+
+<BaseLayout title={title} description={description}>
+  <div class="mx-auto grid max-w-6xl gap-10 px-5 py-10 sm:px-6 lg:grid-cols-[220px_1fr] lg:gap-12 lg:py-14">
+    <!-- Sidebar -->
+    <aside class="lg:sticky lg:top-24 lg:self-start">
+      <nav class="space-y-6">
+        {
+          docsNav.map((group) => (
+            <div>
+              <p class="px-2 text-xs font-semibold uppercase tracking-wider text-ink-mute">
+                {group.title}
+              </p>
+              <ul class="mt-2 space-y-0.5">
+                {group.items.map((item) => {
+                  const active = item.href === here;
+                  return (
+                    <li>
+                      <a
+                        href={item.href}
+                        aria-current={active ? "page" : undefined}
+                        class={`block rounded-lg px-2 py-1.5 text-sm transition-colors ${
+                          active
+                            ? "bg-polito-50 font-medium text-polito-700"
+                            : "text-ink-soft hover:bg-canvas hover:text-ink"
+                        }`}
+                      >
+                        {item.label}
+                      </a>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))
+        }
+      </nav>
+    </aside>
+
+    <!-- Content -->
+    <div class="min-w-0">
+      <article class="prose-doc max-w-2xl">
+        <slot />
+      </article>
+
+      <!-- prev / next -->
+      <nav class="mt-14 grid max-w-2xl gap-3 border-t border-line pt-6 sm:grid-cols-2">
+        {
+          prev ? (
+            <a
+              href={prev.href}
+              class="group rounded-xl border border-line bg-paper px-4 py-3 transition-colors hover:border-polito-200"
+            >
+              <span class="text-xs text-ink-mute">Previous</span>
+              <span class="mt-0.5 flex items-center gap-1.5 text-sm font-medium text-ink">
+                <Icon name="arrow" class="h-4 w-4 rotate-180 text-polito-500" />
+                {prev.label}
+              </span>
+            </a>
+          ) : (
+            <span />
+          )
+        }
+        {
+          next && (
+            <a
+              href={next.href}
+              class="group rounded-xl border border-line bg-paper px-4 py-3 text-right transition-colors hover:border-polito-200 sm:col-start-2"
+            >
+              <span class="text-xs text-ink-mute">Next</span>
+              <span class="mt-0.5 flex items-center justify-end gap-1.5 text-sm font-medium text-ink">
+                {next.label}
+                <Icon name="arrow" class="h-4 w-4 text-polito-500" />
+              </span>
+            </a>
+          )
+        }
+      </nav>
+    </div>
+  </div>
+</BaseLayout>

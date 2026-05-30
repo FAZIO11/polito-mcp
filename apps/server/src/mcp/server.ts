@@ -3,6 +3,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js';
 import type { AuthInfo } from '@modelcontextprotocol/sdk/server/auth/types.js';
 import { Hono } from 'hono';
+import { cors } from 'hono/cors';
 import { verifyAccessToken, ACCESS_TOKEN_TTL_SECONDS } from '../auth/jwt.js';
 import { findUserById } from '../db/users.js';
 import { createPendingSession, linkSessionToUser, lookupSessionUserId, lookupIpUserId } from '../db/sessions.js';
@@ -84,6 +85,16 @@ async function resolveAuth(
 
 export function createMcpHttpApp(): Hono<AppEnv> {
   const app = new Hono<AppEnv>();
+
+  app.use(
+    '/mcp',
+    cors({
+      origin: '*',
+      allowMethods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
+      allowHeaders: ['Content-Type', 'Authorization', 'mcp-session-id'],
+      exposeHeaders: ['mcp-session-id'],
+    }),
+  );
 
   app.all('/mcp', async (c) => {
     const incomingSessionId = c.req.header('mcp-session-id') ?? null;

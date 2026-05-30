@@ -1,0 +1,70 @@
+---
+import Icon from "../Icon.astro";
+import SectionHeader from "../SectionHeader.astro";
+
+const features = [
+  {
+    icon: "grade",
+    title: "Grades & exams",
+    body: "Recorded grades and weighted averages, provisional-grade triage, and exam-session booking.",
+  },
+  {
+    icon: "calendar",
+    title: "Schedule",
+    body: "Today's lectures with rooms, the next session for any course, and every approaching deadline.",
+  },
+  {
+    icon: "book",
+    title: "Course materials",
+    body: "Slides and PDFs, recorded video lectures, virtual-classroom links, syllabus and assignments.",
+  },
+  {
+    icon: "pin",
+    title: "Campus & rooms",
+    body: "Find a free room to study right now; search labs, libraries and offices across every campus.",
+  },
+  {
+    icon: "bell",
+    title: "Inbox & alerts",
+    body: "Portal messages, university announcements, push notifications and the unread-email count.",
+  },
+  {
+    icon: "chart",
+    title: "Plan with data",
+    body: "Pass rates and grade distributions for any course, the full degree offering, elective options.",
+  },
+  {
+    icon: "briefcase",
+    title: "Career",
+    body: "Internships, job postings and thesis proposals from the career office, filtered to you.",
+  },
+  {
+    icon: "users",
+    title: "People & support",
+    body: "Look up a professor's contact, open and track tickets, jump straight into Moodle or webmail.",
+  },
+];
+---
+
+<section class="mx-auto max-w-7xl px-5 sm:px-8">
+  <SectionHeader
+    id="features"
+    num="01"
+    label="Capabilities"
+    title="One connection. The whole portal, answerable."
+    lede="Every part of the PoliTO student API mapped to clear tools your assistant can call — so a plain-language question becomes a precise answer."
+  />
+
+  <div class="reveal grid border-l border-t border-line sm:grid-cols-2 lg:grid-cols-4">
+    {
+      features.map((f) => (
+        <article class="group relative border-b border-r border-line p-6 transition-colors hover:bg-near">
+          <span class="absolute inset-x-0 top-0 h-px scale-x-0 bg-blue transition-transform duration-300 group-hover:scale-x-100" />
+          <Icon name={f.icon} class="h-6 w-6 text-blue-bright" />
+          <h3 class="mt-5 font-mono text-sm uppercase tracking-wide text-white">{f.title}</h3>
+          <p class="mt-2 text-sm leading-relaxed text-ash">{f.body}</p>
+        </article>
+      ))
+    }
+  </div>
+</section>

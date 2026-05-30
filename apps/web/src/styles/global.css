@@ -1,0 +1,159 @@
+@import "tailwindcss";
+@import "@fontsource-variable/geist";
+@import "@fontsource-variable/geist-mono";
+@import "@fontsource/bebas-neue";
+
+/* ----------------------------------------------------------------------------
+   Design language: brutalist-editorial. Pure black canvas, hairline grid,
+   massive condensed display type, monospace micro-labels, sharp corners.
+   One electric-blue brand accent (also PoliTO's colour) + a red-orange punch
+   reserved for the primary call-to-action.
+---------------------------------------------------------------------------- */
+@theme {
+  --font-sans: "Geist Variable", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: "Geist Mono Variable", ui-monospace, "SF Mono", Menlo, monospace;
+  --font-display: "Bebas Neue", "Geist Variable", system-ui, sans-serif;
+
+  /* Canvas + ink */
+  --color-black: #000000;
+  --color-near: #0a0a0a; /* raised panels */
+  --color-near2: #0e0e0e;
+  --color-white: #f4f5f4;
+  --color-ash: #8a8f98; /* secondary text */
+  --color-ash-dim: #5a5f68; /* tertiary / mono labels */
+
+  /* Hairlines */
+  --color-line: #1c1c1c;
+  --color-line-soft: #161616;
+  --color-line-strong: #2a2a2a;
+
+  /* Accents */
+  --color-blue: #0071dd;
+  --color-blue-bright: #2a93ff;
+  --color-link: #4ea8ff;
+  --color-orange: #ff2e08; /* CTA punch */
+  --color-magenta: #ff0082;
+
+  --shadow-cta: 0 4px 28px -2px rgb(255 46 8 / 0.45);
+  --shadow-blue: 0 4px 28px -4px rgb(0 113 221 / 0.5);
+
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  background: var(--color-black);
+}
+
+body {
+  background: var(--color-black);
+  color: var(--color-white);
+  font-family: var(--font-sans);
+  letter-spacing: -0.011em;
+}
+
+::selection {
+  background: var(--color-blue);
+  color: #fff;
+}
+
+/* Display headings — condensed, uppercase, tight tracking. The signature. */
+.font-display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.005em;
+  line-height: 0.9;
+}
+
+/* Mono micro-label, optionally numbered. */
+.label {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-ash-dim);
+}
+
+/* Faint engineering grid for the hero backdrop. */
+.bg-grid {
+  background-image:
+    linear-gradient(to right, rgb(255 255 255 / 0.025) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(255 255 255 / 0.025) 1px, transparent 1px);
+  background-size: 72px 72px;
+}
+
+/* Reveal-on-scroll (progressive enhancement). */
+@media (prefers-reduced-motion: no-preference) {
+  .reveal {
+    opacity: 0;
+    transform: translateY(16px);
+    transition:
+      opacity 0.7s var(--ease-out-soft),
+      transform 0.7s var(--ease-out-soft);
+  }
+  .reveal.is-in {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+:where(a, button, input, summary):focus-visible {
+  outline: 2px solid var(--color-blue-bright);
+  outline-offset: 2px;
+}
+
+/* Long-form prose (docs) — kept functional on the dark canvas; restyled later. */
+.prose-doc {
+  color: var(--color-ash);
+  line-height: 1.7;
+  font-size: 0.95rem;
+}
+.prose-doc h1,
+.prose-doc h2,
+.prose-doc h3 {
+  color: var(--color-white);
+  letter-spacing: -0.02em;
+  scroll-margin-top: 6rem;
+}
+.prose-doc h1 { font-size: 2rem; font-weight: 600; margin-bottom: 0.5rem; }
+.prose-doc h2 { font-size: 1.3rem; font-weight: 600; margin: 2.5rem 0 0.75rem; }
+.prose-doc h3 { font-size: 1.05rem; font-weight: 600; margin: 1.75rem 0 0.5rem; }
+.prose-doc p { margin: 0.9rem 0; }
+.prose-doc a { color: var(--color-link); text-decoration: underline; text-underline-offset: 3px; }
+.prose-doc ul { margin: 0.9rem 0; padding-left: 1.25rem; list-style: disc; }
+.prose-doc ol { margin: 0.9rem 0; padding-left: 1.25rem; list-style: decimal; }
+.prose-doc li { margin: 0.35rem 0; }
+.prose-doc strong { color: var(--color-white); font-weight: 600; }
+.prose-doc code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  background: var(--color-near);
+  border: 1px solid var(--color-line);
+  padding: 0.1em 0.4em;
+  color: var(--color-link);
+}
+.prose-doc pre {
+  font-family: var(--font-mono);
+  background: var(--color-near);
+  border: 1px solid var(--color-line);
+  color: #e8edf6;
+  padding: 1.1rem 1.25rem;
+  overflow-x: auto;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  margin: 1.2rem 0;
+}
+.prose-doc pre code { background: transparent; border: 0; padding: 0; color: inherit; }
+.prose-doc blockquote {
+  border-left: 2px solid var(--color-blue);
+  background: var(--color-near);
+  padding: 0.75rem 1rem;
+  margin: 1.2rem 0;
+  color: var(--color-ash);
+}
+.prose-doc table { width: 100%; border-collapse: collapse; margin: 1.2rem 0; font-size: 0.875rem; }
+.prose-doc th, .prose-doc td { border: 1px solid var(--color-line); padding: 0.55rem 0.75rem; text-align: left; }
+.prose-doc th { background: var(--color-near); font-weight: 600; color: var(--color-white); }

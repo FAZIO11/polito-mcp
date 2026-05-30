@@ -1,0 +1,63 @@
+---
+import SectionHeader from "../SectionHeader.astro";
+
+const points = [
+  {
+    n: "01",
+    title: "Password never stored",
+    body: "Forwarded once to PoliTO's official login over TLS, then wiped from memory. Only the resulting token is kept.",
+  },
+  {
+    n: "02",
+    title: "Tokens encrypted at rest",
+    body: "The PoliTO bearer is sealed with AES-256-GCM under a per-user HKDF key. A database dump alone reveals nothing.",
+  },
+  {
+    n: "03",
+    title: "Open source & auditable",
+    body: "Every line is public under AGPL-3.0. Re-hosters must keep their source open — auditability is the whole story.",
+  },
+  {
+    n: "04",
+    title: "Delete everything, anytime",
+    body: "One call wipes your row and revokes the upstream token. No retention period, no recovery, no dark patterns.",
+  },
+];
+---
+
+<section class="mx-auto max-w-7xl px-5 sm:px-8">
+  <SectionHeader
+    id="security"
+    num="04"
+    label="Trust"
+    title="Don't take our word for it."
+    lede="You're connecting a real student account. That deserves a real threat model — not a privacy policy that hopes you won't read it."
+  />
+
+  <div class="grid border-l border-t border-line sm:grid-cols-2">
+    {
+      points.map((p) => (
+        <div class="border-b border-r border-line p-7">
+          <div class="flex items-baseline gap-3">
+            <span class="font-mono text-xs text-blue">{p.n}</span>
+            <h3 class="font-mono text-sm uppercase tracking-wide text-white">{p.title}</h3>
+          </div>
+          <p class="mt-3 text-sm leading-relaxed text-ash">{p.body}</p>
+        </div>
+      ))
+    }
+  </div>
+
+  <div class="reveal flex flex-col gap-3 border-x border-b border-line bg-near px-7 py-5 sm:flex-row sm:items-center sm:justify-between">
+    <p class="font-mono text-xs leading-relaxed text-ash">
+      <span class="text-emerald-400">✓</span> Logs are redacted by allow-list — a CI test
+      fails the build if a password ever reaches the output.
+    </p>
+    <a
+      href="/docs/security/"
+      class="shrink-0 font-mono text-[11px] uppercase tracking-[0.16em] text-blue-bright transition-colors hover:text-white"
+    >
+      Read the threat model →
+    </a>
+  </div>
+</section>

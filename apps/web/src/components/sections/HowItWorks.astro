@@ -1,0 +1,42 @@
+---
+import SectionHeader from "../SectionHeader.astro";
+
+const steps = [
+  {
+    n: "01",
+    title: "Add one URL",
+    body: "Paste the server URL into Claude Desktop, Cursor, or any MCP-compatible client. No package, no API key.",
+  },
+  {
+    n: "02",
+    title: "Sign in once",
+    body: "Your client opens a hardened PoliTO login. Credentials go straight to PoliTO; your password is never stored.",
+  },
+  {
+    n: "03",
+    title: "Just ask",
+    body: "The assistant answers questions about your real account by calling the right tools behind the scenes.",
+  },
+];
+---
+
+<section class="mx-auto max-w-7xl px-5 sm:px-8">
+  <SectionHeader
+    num="02"
+    label="How it works"
+    title="Built on the Model Context Protocol."
+    lede="MCP is the open standard that lets AI clients securely call external tools. polito-mcp speaks it as a remote server — so any compatible client connects with nothing more than a link."
+  />
+
+  <div class="grid border-l border-t border-line md:grid-cols-3">
+    {
+      steps.map((s) => (
+        <div class="border-b border-r border-line p-7">
+          <span class="font-display text-5xl text-line-strong">{s.n}</span>
+          <h3 class="mt-4 font-mono text-sm uppercase tracking-wide text-white">{s.title}</h3>
+          <p class="mt-2 text-sm leading-relaxed text-ash">{s.body}</p>
+        </div>
+      ))
+    }
+  </div>
+</section>

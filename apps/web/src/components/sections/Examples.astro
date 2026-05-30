@@ -1,0 +1,46 @@
+---
+import SectionHeader from "../SectionHeader.astro";
+
+const prompts = [
+  { tag: "Schedule", text: "What lectures do I have today, and where?" },
+  { tag: "Grades", text: "What's my weighted average, and how would a 28 in Networks change it?" },
+  { tag: "Rooms", text: "Find me a free room at the Cittadella to study this afternoon." },
+  { tag: "Materials", text: "Download all the slides for Database Systems." },
+  { tag: "Exams", text: "Book me into the Analysis 2 exam on June 15th." },
+  { tag: "Stats", text: "What's the average grade and pass rate for Machine Learning?" },
+  { tag: "Alerts", text: "Any new announcements from the university this week?" },
+  { tag: "Career", text: "Are there ML internships posted this month?" },
+];
+---
+
+<section class="mx-auto max-w-7xl px-5 sm:px-8">
+  <SectionHeader
+    id="examples"
+    num="03"
+    label="In your words"
+    title="Ask the way you'd ask a friend."
+    lede="No commands to memorise. The assistant figures out which tools to call and stitches the answer together."
+  />
+
+  <div class="reveal border-t border-line">
+    {
+      prompts.map((p, i) => (
+        <a
+          href="/docs/quickstart/"
+          class="group flex items-center gap-4 border-b border-line py-4 transition-colors hover:bg-near sm:gap-8"
+        >
+          <span class="font-mono text-xs text-ash-dim">{String(i + 1).padStart(2, "0")}</span>
+          <span class="hidden w-24 shrink-0 font-mono text-[11px] uppercase tracking-[0.16em] text-blue sm:block">
+            {p.tag}
+          </span>
+          <span class="flex-1 text-base text-ash transition-colors group-hover:text-white sm:text-lg">
+            {p.text}
+          </span>
+          <span class="font-mono text-ash-dim transition-all group-hover:translate-x-1 group-hover:text-white">
+            →
+          </span>
+        </a>
+      ))
+    }
+  </div>
+</section>
