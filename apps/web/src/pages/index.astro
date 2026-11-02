@@ -1,18 +1,209 @@
 ---
-import BaseLayout from "../layouts/BaseLayout.astro";
-import Hero from "../components/sections/Hero.astro";
-import HowItWorks from "../components/sections/HowItWorks.astro";
-import Features from "../components/sections/Features.astro";
-import Examples from "../components/sections/Examples.astro";
-import Security from "../components/sections/Security.astro";
-import GetStarted from "../components/sections/GetStarted.astro";
+import "../styles/page.css";
+
+const site = {
+  name: "polito-mcp",
+  tagline: "Your PoliTO account, answerable in plain language",
+  mcpUrl: "https://polito-mcp.fly.dev/mcp",
+  repo: "https://github.com/FAZIO11/polito-mcp",
+  docs: "/docs/quickstart/",
+};
+
+const examples = [
+  { tag: "schedule", text: "What lectures do I have today, and where?" },
+  { tag: "grades", text: "What's my weighted average, and how would a 28 in Networks change it?" },
+  { tag: "rooms", text: "Find me a free room at the Cittadella to study this afternoon." },
+  { tag: "materials", text: "Download all the slides for Database Systems." },
+  { tag: "exams", text: "Book me into the Analysis 2 exam on June 15th." },
+  { tag: "stats", text: "What's the average grade and pass rate for Machine Learning?" },
+  { tag: "alerts", text: "Any new announcements from the university this week?" },
+  { tag: "career", text: "Are there ML internships posted this month?" },
+];
+
+const security = [
+  {
+    num: "01",
+    title: "Password never stored",
+    body: "Forwarded once to PoliTO's official login over TLS, then wiped from memory. Only the resulting token is kept.",
+  },
+  {
+    num: "02",
+    title: "Tokens encrypted at rest",
+    body: "The PoliTO bearer is sealed with AES-256-GCM under a per-user HKDF key. A database dump alone reveals nothing.",
+  },
+  {
+    num: "03",
+    title: "Open source and auditable",
+    body: "Every line is public under AGPL-3.0. Re-hosters must keep their source open (auditability is the whole story).",
+  },
+  {
+    num: "04",
+    title: "Delete everything, anytime",
+    body: "One call wipes your row and revokes the upstream token. No retention period, no recovery, no dark patterns.",
+  },
+];
+
+const clients = [
+  { name: "Claude Desktop", logo: "/logos/claude.svg" },
+  { name: "Cursor", logo: "/logos/cursor.svg" },
+  { name: "Windsurf", logo: "/logos/windsurf.svg" },
+  { name: "VS Code", logo: "/logos/vscode.svg" },
+];
+
+const config = `{
+  "mcpServers": {
+    "polito": {
+      "url": "${site.mcpUrl}"
+    }
+  }
+}`;
 ---
 
-<BaseLayout>
-  <Hero />
-  <HowItWorks />
-  <Features />
-  <Examples />
-  <Security />
-  <GetStarted />
-</BaseLayout>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{site.name}: {site.tagline}</title>
+    <meta name="description" content="Remote MCP server connecting AI assistants to the Politecnico di Torino student API. Query grades, lectures, deadlines, and more in natural language." />
+    <meta name="theme-color" content="#1a1a1a" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  </head>
+  <body>
+    <nav class="nav">
+      <div class="container nav__inner">
+        <a href="/" class="nav__wordmark">polito-mcp</a>
+        <div class="nav__links">
+          <a href={site.docs} class="nav__link">Docs</a>
+          <a href={site.repo} class="nav__link" target="_blank" rel="noopener">GitHub</a>
+          <a href={site.docs} class="nav__cta">Connect</a>
+        </div>
+      </div>
+    </nav>
+
+    <main>
+      <section class="hero">
+        <div class="container hero__inner">
+          <h1 class="hero__head">Your PoliTO account, answerable</h1>
+          <p class="hero__lede lead">
+            Connect AI assistants to the Politecnico student API.
+          </p>
+          <div class="hero__actions">
+            <a href={site.docs} class="btn btn--primary">Connect your client</a>
+            <a href="#examples" class="btn btn--secondary">See what it does</a>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="container">
+          <div class="section__head">
+            <h2 class="section__title">The assistant calls the right tools</h2>
+            <p class="section__intro">
+              Ask about your real account: grades, lectures, deadlines, course materials. The assistant figures out which tools to call.
+            </p>
+          </div>
+
+          <div class="tool-demo">
+            <div class="tool-demo__query">What's my weighted average, and how would a 28 in Networks change it?</div>
+            <div class="tool-demo__call measured">get_grades</div>
+            <div class="tool-demo__result">
+              Your current weighted average is 26.4 across 42 credits. With a 28 in Computer Networks (6 credits), your average would rise to 26.6.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="examples">
+        <div class="container">
+          <div class="section__head">
+            <h2 class="section__title">Ask the way you'd ask a friend</h2>
+            <p class="section__intro">
+              No commands to memorize. Plain language queries about your courses, exams, free rooms, deadlines and more.
+            </p>
+          </div>
+
+          <div class="rows">
+            {examples.slice(0, 6).map((ex) => (
+              <a href={site.docs} class="row">
+                <span class="row__label">{ex.tag}</span>
+                <span class="row__text">{ex.text}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="container">
+          <div class="section__head">
+            <h2 class="section__title">Connect in under a minute</h2>
+            <p class="section__intro">
+              Add the server URL to your client's config, restart, and sign in once on the PoliTO login page.
+            </p>
+          </div>
+
+          <div class="code-block">
+            <div class="code-block__head">claude_desktop_config.json</div>
+            <div class="code-block__body">
+              <pre>{config}</pre>
+            </div>
+          </div>
+
+          <div class="clients">
+            {clients.map((client) => (
+              <span style="color: var(--color-muted); font-size: var(--text-sm); font-weight: 500;">
+                {client.name}
+              </span>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="security">
+        <div class="container">
+          <div class="section__head">
+            <h2 class="section__title">Built to earn trust</h2>
+            <p class="section__intro">
+              You're connecting a real student account. That deserves a real threat model, not a privacy policy that hopes you won't read it.
+            </p>
+          </div>
+
+          <div class="security-grid">
+            {security.map((item) => (
+              <div class="security-item">
+                <h3 class="security-item__title">{item.title}</h3>
+                <p class="security-item__body">{item.body}</p>
+              </div>
+            ))}
+          </div>
+
+          <div style="margin-top: var(--space-xl); text-align: center; font-size: var(--text-sm); color: var(--color-muted); max-width: 52ch; margin-left: auto; margin-right: auto;">
+            Logs are redacted by allow-list. 
+            <a href="/docs/security/" style="color: var(--color-cool); text-decoration: underline; white-space: nowrap;">Read the threat model</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <div class="footer__inner">
+          <div>
+            <div class="footer__sign-off">polito-mcp</div>
+            <div class="footer__date measured">v0.1 · November 2026</div>
+          </div>
+          <div class="footer__links">
+            <a href={site.docs} class="footer__link">Docs</a>
+            <a href="/docs/security/" class="footer__link">Security</a>
+            <a href="/privacy/" class="footer__link">Privacy</a>
+            <a href={site.repo} class="footer__link" target="_blank" rel="noopener">GitHub</a>
+          </div>
+        </div>
+        <p class="footer__legal">
+          Unofficial. Not affiliated with Politecnico di Torino. Licensed under AGPL-3.0.
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>
