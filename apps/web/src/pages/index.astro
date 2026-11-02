@@ -1,33 +1,355 @@
 ---
 import "../styles/page.css";
-const site = { name: "polito-mcp", tagline: "Your PoliTO account, answerable in plain language", mcpUrl: "https://polito-mcp.fly.dev/mcp", repo: "https://github.com/FAZIO11/polito-mcp", docs: "/docs/quickstart/" };
-const config = `{\n  "mcpServers": {\n    "polito": {\n      "url": "https://polito-mcp.fly.dev/mcp"\n    }\n  }\n}`;
+
+const site = {
+  name: "polito-mcp",
+  tagline: "Your PoliTO account, answerable in plain language",
+  mcpUrl: "https://polito-mcp.fly.dev/mcp",
+  repo: "https://github.com/FAZIO11/polito-mcp",
+  docs: "/docs/quickstart/",
+};
+
+const config = `{
+  "mcpServers": {
+    "polito": {
+      "url": "https://polito-mcp.fly.dev/mcp"
+    }
+  }
+}`;
 ---
 <!doctype html>
-<html lang="en" style="overflow-x: clip;"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>{site.name}: {site.tagline}</title><meta name="description" content="Remote MCP server connecting AI assistants to the Politecnico di Torino student API. Query grades, lectures, deadlines, and more in natural language." /><meta name="theme-color" content="#1a1a1a" /><link rel="icon" href="/favicon.svg" type="image/svg+xml" /></head><body style="overflow-x: clip;">
+<html lang="en" style="overflow-x: clip;">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{site.name}: {site.tagline}</title>
+  <meta name="description" content="Remote MCP server connecting AI assistants to the Politecnico di Torino student API. Query grades, lectures, deadlines, and more in natural language." />
+  <meta name="theme-color" content="#1a1a1a" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <script>document.documentElement.classList.add('js')</script>
+</head>
+<body style="overflow-x: clip;">
 
-<nav class="nav"><div class="container nav__inner"><a href="/" class="nav__wordmark">polito-mcp</a><div class="nav__links"><a href={site.docs} class="nav__link">Docs</a><a href={site.repo} class="nav__link" target="_blank" rel="noopener">GitHub</a><a href={site.docs} class="nav__cta">Connect</a></div></div></nav>
+<nav class="nav">
+  <div class="container nav__inner">
+    <a href="/" class="nav__wordmark">polito-mcp</a>
+    <div class="nav__links">
+      <a href="/docs/" class="nav__link">Docs</a>
+      <a href={site.repo} class="nav__link" target="_blank" rel="noopener">GitHub</a>
+      <a href={site.docs} class="nav__cta">Connect</a>
+    </div>
+  </div>
+</nav>
 
 <main>
-<section class="hero"><div class="container"><div class="hero__grid"><div class="hero__text reveal"><h1 class="hero__head">Connect AI assistants to your PoliTO account</h1><p class="hero__lede lead">Query grades, lectures, deadlines and materials in plain language.</p><div class="hero__actions"><a href={site.docs} class="btn btn--primary">Connect your client</a><a href="#features" class="btn btn--secondary">See what it does</a></div></div><div class="hero__demo reveal" data-delay="120"><div class="chat-panel"><div class="chat-panel__head"><div class="chat-panel__dots"><span></span><span></span><span></span></div><span class="chat-panel__status"><span class="chat-panel__status-dot"></span>polito connected</span></div><div class="chat-panel__body"><div class="chat-message chat-message--user"><div class="chat-message__text">What's my morning look like? Lectures, anything due, and unread messages.</div></div><div class="chat-message chat-message--assistant"><div class="chat-tools"><span class="chat-tool">list_today_lectures</span><span class="chat-tool">list_deadlines</span><span class="chat-tool">list_messages</span></div><div class="chat-response"><p>Here's your morning:</p><div class="chat-schedule"><div class="chat-schedule__item"><span class="chat-schedule__time measured">09:00</span><span class="chat-schedule__text"><strong>Database Systems</strong> (Room 3D, Cittadella)</span></div><div class="chat-schedule__item"><span class="chat-schedule__time measured">11:30</span><span class="chat-schedule__text"><strong>Machine Learning</strong> (Aula Magna)</span></div></div><p class="chat-alert"><strong>Networks</strong> lab report due tomorrow, 23:59. You have <strong>2 unread messages</strong> (one from the secretariat about exam enrolment).</p></div></div></div></div></div></div></div></section>
 
-<section id="features"><div class="container"><div class="section__head reveal"><h2 class="section__title">One connection. The whole portal, answerable.</h2><p class="section__intro">Every part of the PoliTO student API mapped to clear tools your assistant can call.</p></div><div class="features-grid reveal" data-delay="80"><article class="feature-card"><h3 class="feature-card__title">Grades and exams</h3><p class="feature-card__body">Recorded grades and weighted averages, provisional-grade triage, and exam-session booking.</p></article><article class="feature-card"><h3 class="feature-card__title">Schedule</h3><p class="feature-card__body">Today's lectures with rooms, the next session for any course, and every approaching deadline.</p></article><article class="feature-card"><h3 class="feature-card__title">Course materials</h3><p class="feature-card__body">Slides and PDFs, recorded video lectures, virtual-classroom links, syllabus and assignments.</p></article><article class="feature-card"><h3 class="feature-card__title">Campus and rooms</h3><p class="feature-card__body">Find a free room to study right now; search labs, libraries and offices across every campus.</p></article><article class="feature-card"><h3 class="feature-card__title">Inbox and alerts</h3><p class="feature-card__body">Portal messages, university announcements, push notifications and the unread-email count.</p></article><article class="feature-card"><h3 class="feature-card__title">Plan with data</h3><p class="feature-card__body">Pass rates and grade distributions for any course, the full degree offering, elective options.</p></article><article class="feature-card"><h3 class="feature-card__title">Career</h3><p class="feature-card__body">Internships, job postings and thesis proposals from the career office, filtered to you.</p></article><article class="feature-card"><h3 class="feature-card__title">People and support</h3><p class="feature-card__body">Look up a professor's contact, open and track tickets, jump straight into Moodle or webmail.</p></article></div></div></section>
+<section class="hero">
+  <div class="container">
+    <div class="hero__grid">
+      <div class="hero__text reveal">
+        <h1 class="hero__head">Connect AI assistants to your PoliTO account</h1>
+        <p class="hero__lede lead">Query grades, lectures, deadlines and materials in plain language.</p>
+        <div class="hero__actions">
+          <a href={site.docs} class="btn btn--primary">Connect your client</a>
+          <a href="#features" class="btn btn--secondary">See what it does</a>
+        </div>
+      </div>
 
-<section><div class="container"><div class="section__head reveal"><h2 class="section__title">Built on the Model Context Protocol</h2><p class="section__intro">MCP is the open standard that lets AI clients securely call external tools. Any compatible client connects with just a URL.</p></div><div class="steps-grid reveal" data-delay="80"><div class="step-card"><h3 class="step-card__title">Add one URL</h3><p class="step-card__body">Paste the server URL into Claude Desktop, Cursor, or any MCP-compatible client. No package, no API key.</p></div><div class="step-card"><h3 class="step-card__title">Sign in once</h3><p class="step-card__body">Your client opens a hardened PoliTO login. Credentials go straight to PoliTO; your password is never stored.</p></div><div class="step-card"><h3 class="step-card__title">Just ask</h3><p class="step-card__body">The assistant answers questions about your real account by calling the right tools behind the scenes.</p></div></div></div></section>
+      <div class="hero__demo reveal" data-delay="120">
+        <div class="chat-panel">
+          <div class="chat-panel__head">
+            <div class="chat-panel__dots">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            <span class="chat-panel__status">
+              <span class="chat-panel__status-dot"></span>
+              polito connected
+            </span>
+          </div>
+          <div class="chat-panel__body">
+            <div class="chat-message chat-message--user">
+              <div class="chat-message__text">
+                What's my morning look like? Lectures, anything due, and unread messages.
+              </div>
+            </div>
+            <div class="chat-message chat-message--assistant">
+              <div class="chat-tools">
+                <span class="chat-tool">list_today_lectures</span>
+                <span class="chat-tool">list_deadlines</span>
+                <span class="chat-tool">list_messages</span>
+              </div>
+              <div class="chat-response">
+                <p>Here's your morning:</p>
+                <div class="chat-schedule">
+                  <div class="chat-schedule__item">
+                    <span class="chat-schedule__time measured">09:00</span>
+                    <span class="chat-schedule__text"><strong>Database Systems</strong> (Room 3D, Cittadella)</span>
+                  </div>
+                  <div class="chat-schedule__item">
+                    <span class="chat-schedule__time measured">11:30</span>
+                    <span class="chat-schedule__text"><strong>Machine Learning</strong> (Aula Magna)</span>
+                  </div>
+                </div>
+                <p class="chat-alert">
+                  <strong>Networks</strong> lab report due tomorrow, 23:59. You have <strong>2 unread messages</strong> (one from the secretariat about exam enrolment).
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-<section id="examples"><div class="container"><div class="section__head reveal"><h2 class="section__title">Ask the way you'd ask a friend</h2><p class="section__intro">No commands to memorize. Plain language queries about your courses, exams, free rooms and more.</p></div><div class="rows reveal" data-delay="80"><a href={site.docs} class="row"><span class="row__label">schedule</span><span class="row__text">What lectures do I have today, and where?</span></a><a href={site.docs} class="row"><span class="row__label">grades</span><span class="row__text">What's my weighted average, and how would a 28 in Networks change it?</span></a><a href={site.docs} class="row"><span class="row__label">rooms</span><span class="row__text">Find me a free room at the Cittadella to study this afternoon.</span></a><a href={site.docs} class="row"><span class="row__label">materials</span><span class="row__text">Download all the slides for Database Systems.</span></a><a href={site.docs} class="row"><span class="row__label">exams</span><span class="row__text">Book me into the Analysis 2 exam on June 15th.</span></a><a href={site.docs} class="row"><span class="row__label">stats</span><span class="row__text">What's the average grade and pass rate for Machine Learning?</span></a><a href={site.docs} class="row"><span class="row__label">alerts</span><span class="row__text">Any new announcements from the university this week?</span></a><a href={site.docs} class="row"><span class="row__label">career</span><span class="row__text">Are there ML internships posted this month?</span></a></div></div></section>
+<section id="features">
+  <div class="container">
+    <div class="section__head reveal">
+      <h2 class="section__title">One connection. The whole portal, answerable.</h2>
+      <p class="section__intro">
+        Every part of the PoliTO student API mapped to clear tools your assistant can call.
+      </p>
+    </div>
 
-<section><div class="container"><div class="section__head reveal"><h2 class="section__title">Connect in under a minute</h2><p class="section__intro">Add the server URL to your client's config, restart, and sign in once.</p></div><div class="code-block reveal" data-delay="80"><div class="code-block__head">claude_desktop_config.json</div><div class="code-block__body"><pre>{config}</pre></div></div><div class="clients reveal" data-delay="120"><div class="client-logo"><img src="https://avatars.githubusercontent.com/u/157740656?s=200&v=4" alt="Claude" /><span>Claude</span></div><div class="client-logo"><img src="https://www.cursor.com/brand/icon.svg" alt="Cursor" /><span>Cursor</span></div><div class="client-logo"><img src="https://avatars.githubusercontent.com/u/34343793?s=200&v=4" alt="ChatGPT" /><span>ChatGPT</span></div><div class="client-logo"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.15 2.587L18.21.21a1.494 1.494 0 0 0-1.705.29l-9.46 8.63-4.12-3.128a.999.999 0 0 0-1.276.057L.327 7.261A1 1 0 0 0 .326 8.74L3.899 12 .326 15.26a1 1 0 0 0 .001 1.479L1.65 17.94a.999.999 0 0 0 1.276.057l4.12-3.128 9.46 8.63a1.492 1.492 0 0 0 1.704.29l4.942-2.377A1.5 1.5 0 0 0 24 20.06V3.939a1.5 1.5 0 0 0-.85-1.352zm-5.146 14.861L10.826 12l7.178-5.448v10.896z"/></svg><span>VS Code</span></div></div></div></section>
+    <div class="features-grid reveal" data-delay="80">
+      <article class="feature-card">
+        <h3 class="feature-card__title">Grades and exams</h3>
+        <p class="feature-card__body">Recorded grades and weighted averages, provisional-grade triage, and exam-session booking.</p>
+      </article>
+      <article class="feature-card">
+        <h3 class="feature-card__title">Schedule</h3>
+        <p class="feature-card__body">Today's lectures with rooms, the next session for any course, and every approaching deadline.</p>
+      </article>
+      <article class="feature-card">
+        <h3 class="feature-card__title">Course materials</h3>
+        <p class="feature-card__body">Slides and PDFs, recorded video lectures, virtual-classroom links, syllabus and assignments.</p>
+      </article>
+      <article class="feature-card">
+        <h3 class="feature-card__title">Campus and rooms</h3>
+        <p class="feature-card__body">Find a free room to study right now; search labs, libraries and offices across every campus.</p>
+      </article>
+      <article class="feature-card">
+        <h3 class="feature-card__title">Inbox and alerts</h3>
+        <p class="feature-card__body">Portal messages, university announcements, push notifications and the unread-email count.</p>
+      </article>
+      <article class="feature-card">
+        <h3 class="feature-card__title">Plan with data</h3>
+        <p class="feature-card__body">Pass rates and grade distributions for any course, the full degree offering, elective options.</p>
+      </article>
+      <article class="feature-card">
+        <h3 class="feature-card__title">Career</h3>
+        <p class="feature-card__body">Internships, job postings and thesis proposals from the career office, filtered to you.</p>
+      </article>
+      <article class="feature-card">
+        <h3 class="feature-card__title">People and support</h3>
+        <p class="feature-card__body">Look up a professor's contact, open and track tickets, jump straight into Moodle or webmail.</p>
+      </article>
+    </div>
+  </div>
+</section>
 
-<section id="security"><div class="container"><div class="section__head reveal"><h2 class="section__title">Built to earn trust</h2><p class="section__intro">You're connecting a real student account. That deserves a real threat model, not a privacy policy that hopes you won't read it.</p></div><div class="security-grid reveal" data-delay="80"><div class="security-item"><h3 class="security-item__title">Password never stored</h3><p class="security-item__body">Forwarded once to PoliTO's official login over TLS, then wiped from memory. Only the resulting token is kept.</p></div><div class="security-item"><h3 class="security-item__title">Tokens encrypted at rest</h3><p class="security-item__body">The PoliTO bearer is sealed with AES-256-GCM under a per-user HKDF key. A database dump alone reveals nothing.</p></div><div class="security-item"><h3 class="security-item__title">Open source and auditable</h3><p class="security-item__body">Every line is public under AGPL-3.0. Re-hosters must keep their source open (auditability is the whole story).</p></div><div class="security-item"><h3 class="security-item__title">Delete everything, anytime</h3><p class="security-item__body">One call wipes your row and revokes the upstream token. No retention period, no recovery, no dark patterns.</p></div></div><div class="reveal" style="margin-top: var(--space-xl); text-align: center; font-size: var(--text-sm); color: var(--color-muted); max-width: 52ch; margin-left: auto; margin-right: auto;" data-delay="120">Logs are redacted by allow-list. <a href="/docs/security/" style="color: var(--color-cool); text-decoration: underline; white-space: nowrap;">Read the threat model</a></div></div></section>
+<section>
+  <div class="container">
+    <div class="section__head reveal">
+      <h2 class="section__title">Built on the Model Context Protocol</h2>
+      <p class="section__intro">
+        MCP is the open standard that lets AI clients securely call external tools. Any compatible client connects with just a URL.
+      </p>
+    </div>
+
+    <div class="steps-grid reveal" data-delay="80">
+      <div class="step-card">
+        <h3 class="step-card__title">Add one URL</h3>
+        <p class="step-card__body">Paste the server URL into Claude Desktop, Cursor, or any MCP-compatible client. No package, no API key.</p>
+      </div>
+      <div class="step-card">
+        <h3 class="step-card__title">Sign in once</h3>
+        <p class="step-card__body">Your client opens a hardened PoliTO login. Credentials go straight to PoliTO; your password is never stored.</p>
+      </div>
+      <div class="step-card">
+        <h3 class="step-card__title">Just ask</h3>
+        <p class="step-card__body">The assistant answers questions about your real account by calling the right tools behind the scenes.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="examples">
+  <div class="container">
+    <div class="section__head reveal">
+      <h2 class="section__title">Ask the way you'd ask a friend</h2>
+      <p class="section__intro">
+        No commands to memorize. Plain language queries about your courses, exams, free rooms and more.
+      </p>
+    </div>
+
+    <div class="rows reveal" data-delay="80">
+      <a href="/docs/tools/" class="row">
+        <span class="row__label">schedule</span>
+        <span class="row__text">What lectures do I have today, and where?</span>
+      </a>
+      <a href="/docs/tools/" class="row">
+        <span class="row__label">grades</span>
+        <span class="row__text">What's my weighted average, and how would a 28 in Networks change it?</span>
+      </a>
+      <a href="/docs/tools/" class="row">
+        <span class="row__label">rooms</span>
+        <span class="row__text">Find me a free room at the Cittadella to study this afternoon.</span>
+      </a>
+      <a href="/docs/tools/" class="row">
+        <span class="row__label">materials</span>
+        <span class="row__text">Download all the slides for Database Systems.</span>
+      </a>
+      <a href="/docs/tools/" class="row">
+        <span class="row__label">exams</span>
+        <span class="row__text">Book me into the Analysis 2 exam on June 15th.</span>
+      </a>
+      <a href="/docs/tools/" class="row">
+        <span class="row__label">stats</span>
+        <span class="row__text">What's my weighted average and pass rate for Machine Learning?</span>
+      </a>
+      <a href="/docs/tools/" class="row">
+        <span class="row__label">alerts</span>
+        <span class="row__text">Any new announcements from the university this week?</span>
+      </a>
+      <a href="/docs/tools/" class="row">
+        <span class="row__label">career</span>
+        <span class="row__text">Are there ML internships posted this month?</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <div class="section__head reveal">
+      <h2 class="section__title">Connect in under a minute</h2>
+      <p class="section__intro">
+        Add the server URL to your client's config, restart, and sign in once.
+      </p>
+    </div>
+
+    <div class="code-block reveal" data-delay="80">
+      <div class="code-block__head">claude_desktop_config.json</div>
+      <div class="code-block__body">
+        <pre>{config}</pre>
+      </div>
+    </div>
+
+    <div class="clients reveal" data-delay="120">
+      <div class="client-logo">
+        <img src="/logos/claude.svg" alt="Claude" />
+        <span>Claude</span>
+      </div>
+      <div class="client-logo">
+        <img src="/logos/cursor.svg" alt="Cursor" />
+        <span>Cursor</span>
+      </div>
+      <div class="client-logo">
+        <img src="/logos/chatgpt.svg" alt="ChatGPT" />
+        <span>ChatGPT</span>
+      </div>
+      <div class="client-logo">
+        <img src="/logos/vscode.svg" alt="VS Code" />
+        <span>VS Code</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="security">
+  <div class="container">
+    <div class="section__head reveal">
+      <h2 class="section__title">Built to earn trust</h2>
+      <p class="section__intro">
+        You're connecting a real student account. That deserves a real threat model, not a privacy policy that hopes you won't read it.
+      </p>
+    </div>
+
+    <div class="security-grid reveal" data-delay="80">
+      <div class="security-item">
+        <h3 class="security-item__title">Password never stored</h3>
+        <p class="security-item__body">Forwarded once to PoliTO's official login over TLS, then wiped from memory. Only the resulting token is kept.</p>
+      </div>
+      <div class="security-item">
+        <h3 class="security-item__title">Tokens encrypted at rest</h3>
+        <p class="security-item__body">The PoliTO bearer is sealed with AES-256-GCM under a per-user HKDF key. A database dump alone reveals nothing.</p>
+      </div>
+      <div class="security-item">
+        <h3 class="security-item__title">Open source and auditable</h3>
+        <p class="security-item__body">Every line is public under AGPL-3.0. Re-hosters must keep their source open (auditability is the whole story).</p>
+      </div>
+      <div class="security-item">
+        <h3 class="security-item__title">Delete everything, anytime</h3>
+        <p class="security-item__body">One call wipes your row and revokes the upstream token. No retention period, no recovery, no dark patterns.</p>
+      </div>
+    </div>
+
+    <div class="reveal" style="margin-top: var(--space-xl); text-align: center; font-size: var(--text-sm); color: var(--color-muted); max-width: 52ch; margin-left: auto; margin-right: auto;" data-delay="120">
+      Logs are redacted by allow-list. <a href="/docs/security/" style="color: var(--color-cool); text-decoration: underline; white-space: nowrap;">Read the threat model</a>
+    </div>
+  </div>
+</section>
+
 </main>
 
-<footer class="footer"><div class="container"><div class="footer__inner"><div><div class="footer__sign-off">polito-mcp</div><div class="footer__date measured">v0.1 · November 2026</div></div><div class="footer__links"><a href={site.docs} class="footer__link">Docs</a><a href="/docs/security/" class="footer__link">Security</a><a href="/docs/privacy/" class="footer__link">Privacy</a><a href={site.repo} class="footer__link" target="_blank" rel="noopener">GitHub</a></div></div><p class="footer__legal">Unofficial. Not affiliated with Politecnico di Torino. Licensed under AGPL-3.0.</p></div></footer>
+<footer class="footer">
+  <div class="container">
+    <div class="footer__inner">
+      <div>
+        <div class="footer__sign-off">polito-mcp</div>
+        <div class="footer__date measured">v0.1 · November 2026</div>
+      </div>
+      <div class="footer__links">
+        <a href="/docs/" class="footer__link">Docs</a>
+        <a href="/docs/roadmap/" class="footer__link">Roadmap</a>
+        <a href="/docs/security/" class="footer__link">Security</a>
+        <a href="/docs/faq/" class="footer__link">FAQ</a>
+        <a href={site.repo} class="footer__link" target="_blank" rel="noopener">GitHub</a>
+        <a href={`${site.repo}/issues`} class="footer__link" target="_blank" rel="noopener">Issues</a>
+      </div>
+    </div>
+    <p class="footer__legal">
+      Unofficial. Not affiliated with Politecnico di Torino. Licensed under AGPL-3.0.
+    </p>
+  </div>
+</footer>
 
 <script>
 const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const els = document.querySelectorAll<HTMLElement>(".reveal");
-if (reduce || !("IntersectionObserver" in window)) { els.forEach((el) => el.classList.add("is-in")); } else { const io = new IntersectionObserver((entries) => { for (const e of entries) { if (e.isIntersecting) { const el = e.target as HTMLElement; el.style.transitionDelay = (el.getAttribute("data-delay") ?? "0") + "ms"; el.classList.add("is-in"); io.unobserve(el); } } }, { rootMargin: "0px 0px -8% 0px", threshold: 0.08 }); els.forEach((el) => io.observe(el)); }
-if (!reduce) { const tools = document.querySelectorAll<HTMLElement>(".chat-tool"); let delay = 800; tools.forEach((tool, i) => { setTimeout(() => { tool.classList.add("is-visible"); }, delay + i * 150); }); } else { document.querySelectorAll<HTMLElement>(".chat-tool").forEach((tool) => { tool.classList.add("is-visible"); }); }
+if (reduce || !("IntersectionObserver" in window)) {
+  els.forEach((el) => el.classList.add("is-in"));
+} else {
+  const io = new IntersectionObserver(
+    (entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) {
+          const el = e.target as HTMLElement;
+          el.style.transitionDelay = (el.getAttribute("data-delay") ?? "0") + "ms";
+          el.classList.add("is-in");
+          io.unobserve(el);
+        }
+      }
+    },
+    { rootMargin: "0px 0px -8% 0px", threshold: 0.08 }
+  );
+  els.forEach((el) => io.observe(el));
+}
+
+if (!reduce) {
+  const tools = document.querySelectorAll<HTMLElement>(".chat-tool");
+  let delay = 800;
+  tools.forEach((tool, i) => {
+    setTimeout(() => { tool.classList.add("is-visible"); }, delay + i * 150);
+  });
+} else {
+  document.querySelectorAll<HTMLElement>(".chat-tool").forEach((tool) => {
+    tool.classList.add("is-visible");
+  });
+}
 </script>
-</body></html>
+</body>
+</html>
