@@ -26,3 +26,4 @@ data/
 
 # Fly
 .fly/
+apps/web/.astro/
