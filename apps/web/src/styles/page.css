@@ -349,6 +349,11 @@ section + section {
   border-radius: var(--radius-card);
 }
 
+.features-grid::after {
+  content: '';
+  display: none;
+}
+
 .feature-card {
   background: var(--color-paper-2);
   padding: var(--space-xl);
